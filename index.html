@@ -231,55 +231,122 @@
     .callout strong {
       color: #fff;
     }
-    .diagram-card {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 0.75rem;
-      padding: 1.5rem;
-      margin: 2rem 0;
+    /* Senior Systems Engineering Architecture Canvas */
+    .arch-card {
+      background: #0c1220;
+      border: 1px solid #1e293b;
+      border-radius: 0.85rem;
+      padding: 1.75rem 1.5rem;
+      margin: 2.25rem 0;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
     }
-    .diagram-title {
+    .arch-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.25rem;
+      border-bottom: 1px solid #1e293b;
+      padding-bottom: 0.75rem;
+    }
+    .arch-title {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 0.8rem;
-      text-transform: uppercase;
+      font-size: 0.82rem;
+      font-weight: 600;
       color: var(--accent-light);
-      margin-bottom: 1rem;
-      display: block;
+      text-transform: uppercase;
       letter-spacing: 0.05em;
     }
-    .flowchart {
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
+    .arch-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 0.25rem;
+      background: rgba(56, 189, 248, 0.1);
+      color: var(--blue);
+      border: 1px solid rgba(56, 189, 248, 0.25);
     }
-    @media (min-width: 640px) {
-      .flowchart {
-        flex-direction: row;
-        align-items: center;
-        justify-content: space-between;
+    .arch-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+    @media (min-width: 768px) {
+      .arch-grid {
+        grid-template-columns: repeat(4, 1fr);
       }
     }
-    .flow-step {
-      background: #0b1120;
+    .arch-node {
+      background: #060913;
       border: 1px solid #1e293b;
-      padding: 0.85rem 1rem;
+      border-radius: 0.65rem;
+      padding: 1.15rem 1rem;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .arch-node:hover {
+      border-color: rgba(139, 92, 246, 0.6);
+      transform: translateY(-2px);
+    }
+    .arch-node-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--blue);
+      text-transform: uppercase;
+      margin-bottom: 0.45rem;
+      letter-spacing: 0.05em;
+      font-weight: 600;
+    }
+    .arch-node-tag.green { color: var(--green); }
+    .arch-node-tag.amber { color: var(--amber); }
+    .arch-node-tag.purple { color: var(--accent-light); }
+    .arch-node-title {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 0.35rem;
+    }
+    .arch-node-desc {
+      font-size: 0.76rem;
+      color: #94a3b8;
+      line-height: 1.5;
+      margin-bottom: 0.75rem;
+    }
+    .arch-node-meta {
+      margin-top: auto;
+      padding-top: 0.65rem;
+      border-top: 1px dashed #1e293b;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      color: #cbd5e1;
+    }
+    .arch-node-meta code {
+      background: #0f172a;
+      color: #cbd5e1;
+      padding: 0.1rem 0.3rem;
+      border-radius: 0.2rem;
+      font-size: 0.7rem;
+    }
+    .arch-ribbon {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      padding: 0.65rem 1rem;
+      margin-top: 1rem;
+      background: rgba(139, 92, 246, 0.06);
+      border: 1px dashed rgba(139, 92, 246, 0.25);
       border-radius: 0.5rem;
-      flex: 1;
-      text-align: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      color: #c4b5fd;
     }
-    .flow-step strong {
-      display: block;
-      color: var(--text-main);
-      font-size: 0.88rem;
-    }
-    .flow-step span {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-    }
-    .flow-arrow {
-      color: var(--accent-light);
-      font-weight: bold;
-      text-align: center;
+    .arch-ribbon span {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
     }
     .metrics-grid {
       display: grid;
@@ -365,28 +432,42 @@
         Web crawling introduces silent failure modes: HTML navigation wrappers and cookie consent banners corrupt embedding spaces, CSS stylesheet changes trigger redundant recalculations, and unpublished or deleted articles linger in vector memory indefinitely.
       </p>
 
-      <div class="diagram-card">
-        <span class="diagram-title">Data Pipeline: Webflow to Cognee Graph Memory</span>
-        <div class="flowchart">
-          <div class="flow-step">
-            <strong>Webflow API v2</strong>
-            <span>Collections & Live Items</span>
+      <div class="arch-card">
+        <div class="arch-header">
+          <span class="arch-title">Systems Topology: Webflow CMS to Graph Memory Pipeline</span>
+          <span class="arch-badge">dlt replace · DOCUMENT_SOURCE_ATTR</span>
+        </div>
+        <div class="arch-grid">
+          <div class="arch-node">
+            <span class="arch-node-tag">Stage 1 · Ingress</span>
+            <div class="arch-node-title">Webflow API v2</div>
+            <div class="arch-node-desc">OAuth 2.0 / Bearer auth, paginated collection items & live CMS snapshots. Implements 429 exponential backoff.</div>
+            <div class="arch-node-meta">Protocol: <code>GET /v2/collections/{id}/items</code></div>
           </div>
-          <div class="flow-arrow">➔</div>
-          <div class="flow-step">
-            <strong>dlt replace Engine</strong>
-            <span>Markdown Normalization</span>
+          <div class="arch-node">
+            <span class="arch-node-tag green">Stage 2 · DLT Runtime</span>
+            <div class="arch-node-title">AST Transformer</div>
+            <div class="arch-node-desc">Sanitizes raw HTML to Markdown AST, extracts image/code blocks, routes via <code>DOCUMENT_SOURCE_ATTR</code>.</div>
+            <div class="arch-node-meta">Staging: <code>DuckDB Buffer (replace)</code></div>
           </div>
-          <div class="flow-arrow">➔</div>
-          <div class="flow-step">
-            <strong>Cognee Cognify</strong>
-            <span>Entity & Relation Extraction</span>
+          <div class="arch-node">
+            <span class="arch-node-tag amber">Stage 3 · Cognify Core</span>
+            <div class="arch-node-title">Cognify NLP Engine</div>
+            <div class="arch-node-desc">Bypasses tabular SQL schema. LiteLLM dense embeddings + LLM entity-relation triplet extraction.</div>
+            <div class="arch-node-meta">Extractor: <code>(CMSItem)-[:TOPIC]->(Entity)</code></div>
           </div>
-          <div class="flow-arrow">➔</div>
-          <div class="flow-step">
-            <strong>Knowledge Graph</strong>
-            <span>Autonomous Agent Recall</span>
+          <div class="arch-node">
+            <span class="arch-node-tag purple">Stage 4 · Persistence</span>
+            <div class="arch-node-title">Dual Store & RAG</div>
+            <div class="arch-node-desc">Dense vector index (Qdrant/Milvus) for ANN similarity + Cypher graph topology (FalkorDB) for multi-hop recall.</div>
+            <div class="arch-node-meta">Query: <code>await cognee.search(...)</code></div>
           </div>
+        </div>
+        <div class="arch-ribbon">
+          <span>⚡ Ingress: HTTPS JSON</span>
+          <span>➔ Staging: DuckDB Memory</span>
+          <span>➔ Ingestion: DOCUMENT_SOURCE_ATTR</span>
+          <span>➔ Storage: Vector + Cypher Graph</span>
         </div>
       </div>
 
@@ -423,28 +504,42 @@ print(results)</code></pre>
         Without direct integration into team wikis, AI coding assistants have zero visibility into why architectural tradeoffs were made, which microservices own specific domain logic, or how to triage database failover events.
       </p>
 
-      <div class="diagram-card">
-        <span class="diagram-title">Data Pipeline: Slab to Cognee Graph Memory</span>
-        <div class="flowchart">
-          <div class="flow-step">
-            <strong>Slab GraphQL API</strong>
-            <span>Posts, Topics & Threads</span>
+      <div class="arch-card">
+        <div class="arch-header">
+          <span class="arch-title">Systems Topology: Slab GraphQL to Knowledge Graph Pipeline</span>
+          <span class="arch-badge">GraphQL v1 · Cursor Connection</span>
+        </div>
+        <div class="arch-grid">
+          <div class="arch-node">
+            <span class="arch-node-tag">Stage 1 · GraphQL Ingress</span>
+            <div class="arch-node-title">Slab Connection Traversal</div>
+            <div class="arch-node-desc">Executes Relay cursor query <code>posts(first: 50, after: $cursor)</code> with topic hierarchy filters and thread recursion.</div>
+            <div class="arch-node-meta">Endpoint: <code>POST /v1/graphql</code></div>
           </div>
-          <div class="flow-arrow">➔</div>
-          <div class="flow-step">
-            <strong>Thread Enrichment</strong>
-            <span>Inline RFC Comments</span>
+          <div class="arch-node">
+            <span class="arch-node-tag green">Stage 2 · Thread Enrichment</span>
+            <div class="arch-node-title">RFC Context Assembly</div>
+            <div class="arch-node-desc">Correlates inline comments, author attributions, and discussion threads alongside post Markdown bodies.</div>
+            <div class="arch-node-meta">Model: <code>Post + Inline Comments</code></div>
           </div>
-          <div class="flow-arrow">➔</div>
-          <div class="flow-step">
-            <strong>Cognee Cognify</strong>
-            <span>Architectural Entity Graph</span>
+          <div class="arch-node">
+            <span class="arch-node-tag amber">Stage 3 · Entity Extraction</span>
+            <div class="arch-node-title">Architecture Mapper</div>
+            <div class="arch-node-desc">Maps design decisions, microservices, and runbooks into typed graph nodes via <code>DOCUMENT_SOURCE_ATTR="slab"</code>.</div>
+            <div class="arch-node-meta">Graph: <code>(RFC)-[:DECIDES]->(Architecture)</code></div>
           </div>
-          <div class="flow-arrow">➔</div>
-          <div class="flow-step">
-            <strong>Team Knowledge Graph</strong>
-            <span>Decision & Runbook Recall</span>
+          <div class="arch-node">
+            <span class="arch-node-tag purple">Stage 4 · Agent Recall</span>
+            <div class="arch-node-title">Multi-Hop Graph RAG</div>
+            <div class="arch-node-desc">AI coding copilots traverse historical decision paths to understand why infrastructure tradeoffs were made.</div>
+            <div class="arch-node-meta">Recall: <code>cognee.search(query, datasets)</code></div>
           </div>
+        </div>
+        <div class="arch-ribbon">
+          <span>⚡ Relay GraphQL Cursor</span>
+          <span>➔ In-Memory Comment Threading</span>
+          <span>➔ Cognify Architecture Extraction</span>
+          <span>➔ Graph Multi-Hop Query</span>
         </div>
       </div>
 
@@ -483,28 +578,42 @@ answer = await cognee.search("What is our disaster recovery failover procedure f
         The Freshdesk connector syncs resolved customer tickets, conversation threads, and internal solution articles directly into Cognee's semantic memory.
       </p>
 
-      <div class="diagram-card">
-        <span class="diagram-title">Data Pipeline: Freshdesk to Cognee Graph Memory</span>
-        <div class="flowchart">
-          <div class="flow-step">
-            <strong>Freshdesk REST v2</strong>
-            <span>Tickets, Threads & Solutions</span>
+      <div class="arch-card">
+        <div class="arch-header">
+          <span class="arch-title">Systems Topology: Freshdesk Support to Triplet Graph Pipeline</span>
+          <span class="arch-badge">REST v2 · Multi-Turn Thread Normalizer</span>
+        </div>
+        <div class="arch-grid">
+          <div class="arch-node">
+            <span class="arch-node-tag">Stage 1 · Ingress & Backoff</span>
+            <div class="arch-node-title">Freshdesk REST v2</div>
+            <div class="arch-node-desc">Pulls tickets, conversations, and solution articles. Handles HTTP 429 backoff using standard <code>Retry-After</code> parsing.</div>
+            <div class="arch-node-meta">Endpoints: <code>/tickets</code> & <code>/solutions</code></div>
           </div>
-          <div class="flow-arrow">➔</div>
-          <div class="flow-step">
-            <strong>Thread Normalizer</strong>
-            <span>Multi-turn Conversation Turns</span>
+          <div class="arch-node">
+            <span class="arch-node-tag green">Stage 2 · Thread Resolution</span>
+            <div class="arch-node-title">Conversation Stager</div>
+            <div class="arch-node-desc">Reconstructs chronological dialogue turns, differentiates Requester from Support Agent, preserves resolution steps.</div>
+            <div class="arch-node-meta">Model: <code>Structured Problem + Fix</code></div>
           </div>
-          <div class="flow-arrow">➔</div>
-          <div class="flow-step">
-            <strong>Cognee Cognify</strong>
-            <span>Root-Cause & Solution Graph</span>
+          <div class="arch-node">
+            <span class="arch-node-tag amber">Stage 3 · Cognify Processing</span>
+            <div class="arch-node-title">Root-Cause Extractor</div>
+            <div class="arch-node-desc">Extracts root causes, affected components, and fix steps into typed relationships via <code>DOCUMENT_SOURCE_ATTR="freshdesk"</code>.</div>
+            <div class="arch-node-meta">Graph: <code>(Bug)-[:RESOLVED_BY]->(Patch)</code></div>
           </div>
-          <div class="flow-arrow">➔</div>
-          <div class="flow-step">
-            <strong>Support Copilot</strong>
-            <span>Zero-Shot Ticket Triage</span>
+          <div class="arch-node">
+            <span class="arch-node-tag purple">Stage 4 · Copilot Recall</span>
+            <div class="arch-node-title">Automated Triage RAG</div>
+            <div class="arch-node-desc">Customer support bots match incoming bug reports against past resolved tickets with exact historical resolutions.</div>
+            <div class="arch-node-meta">Query: <code>cognee.search(error_log)</code></div>
           </div>
+        </div>
+        <div class="arch-ribbon">
+          <span>⚡ REST v2 Rate-Aware Polling</span>
+          <span>➔ Multi-Turn Chronological Normalization</span>
+          <span>➔ Root-Cause Triplet Cognify</span>
+          <span>➔ Fast Zero-Shot Resolution</span>
         </div>
       </div>
 
@@ -544,28 +653,42 @@ res = await cognee.search("How was the OAuth2 token refresh race condition resol
         Once a meeting concludes, that context is effectively lost or locked inside hour-long video recordings. The <code>cognee-community-connector-tldv</code> extracts meeting recordings, speaker-attributed transcripts, and AI-generated summary notes, transforming ephemeral spoken dialogue into searchable semantic graph nodes.
       </p>
 
-      <div class="diagram-card">
-        <span class="diagram-title">Data Pipeline: tl;dv Meetings to Cognee Graph</span>
-        <div class="flowchart">
-          <div class="flow-step">
-            <strong>tl;dv Public REST API</strong>
-            <span>Meetings, Transcripts & Notes</span>
+      <div class="arch-card">
+        <div class="arch-header">
+          <span class="arch-title">Systems Topology: tl;dv Meeting Intelligence to Graph Pipeline</span>
+          <span class="arch-badge">REST v1 · Speaker Transcript Synthesis</span>
+        </div>
+        <div class="arch-grid">
+          <div class="arch-node">
+            <span class="arch-node-tag">Stage 1 · Multi-Resource Ingress</span>
+            <div class="arch-node-title">tl;dv API v1</div>
+            <div class="arch-node-desc">Parallel fetching of meeting metadata (<code>/meetings</code>), speaker turns (<code>/transcript</code>), and AI notes (<code>/notes</code>).</div>
+            <div class="arch-node-meta">Auth: <code>x-api-key + Rate Backoff</code></div>
           </div>
-          <div class="flow-arrow">➔</div>
-          <div class="flow-step">
-            <strong>Transcript Formatter</strong>
-            <span>Speaker Turns & Takeaways</span>
+          <div class="arch-node">
+            <span class="arch-node-tag green">Stage 2 · Dialogue Formatter</span>
+            <div class="arch-node-title">Speaker Turn Stager</div>
+            <div class="arch-node-desc">Formats timestamped speaker turns (<code>[04:12] Alice: ...</code>), synthesizes executive notes, and extracts attendees.</div>
+            <div class="arch-node-meta">Format: <code>Speaker Dialogue AST</code></div>
           </div>
-          <div class="flow-arrow">➔</div>
-          <div class="flow-step">
-            <strong>Cognee Cognify</strong>
-            <span>Decision & Stakeholder Graph</span>
+          <div class="arch-node">
+            <span class="arch-node-tag amber">Stage 3 · Entity Extraction</span>
+            <div class="arch-node-title">Decision & Action Graph</div>
+            <div class="arch-node-desc">Links action items to assignees and roadmap topics via <code>DOCUMENT_SOURCE_ATTR="tldv"</code> with <code>replace</code> disposition.</div>
+            <div class="arch-node-meta">Graph: <code>(Speaker)-[:COMMITS_TO]->(Task)</code></div>
           </div>
-          <div class="flow-arrow">➔</div>
-          <div class="flow-step">
-            <strong>Agent Reasoning</strong>
-            <span>Action Item & Decision Recall</span>
+          <div class="arch-node">
+            <span class="arch-node-tag purple">Stage 4 · Team Memory</span>
+            <div class="arch-node-title">Verbal Decision Recall</div>
+            <div class="arch-node-desc">Autonomous agents query meeting decisions, stakeholder commitments, and sprint blockers instantly.</div>
+            <div class="arch-node-meta">Query: <code>cognee.search(meeting_query)</code></div>
           </div>
+        </div>
+        <div class="arch-ribbon">
+          <span>⚡ Parallel Multi-Resource Fetch</span>
+          <span>➔ Speaker Dialogue Parsing</span>
+          <span>➔ Action Item Triplet Extraction</span>
+          <span>➔ Verbal Enterprise Memory</span>
         </div>
       </div>
 
@@ -603,8 +726,43 @@ print(summary)</code></pre>
         While contributing data connectors to Cognee Community, we discovered a critical bug in <code>cognee-community-hybrid-adapter-falkor</code> (<a href="https://github.com/topoteretes/cognee-community/issues/262" target="_blank" rel="noopener">Issue #262</a>): <strong>every graph dataset containing edges crashed on visualization with <code>KeyError: 'source_node_id'</code></strong>.
       </p>
 
-      <div class="callout amber">
-        <strong>The Blast Radius:</strong> Whenever a user called <code>GET /v1/datasets/{id}/graph</code> (the core endpoint for Cognee's interactive knowledge graph explorer) or <code>get_filtered_graph_data([])</code>, the server returned an uncaught HTTP 500 error on any graph with at least one relationship.
+      <div class="arch-card">
+        <div class="arch-header">
+          <span class="arch-title">Systems Topology: FalkorDB Graph Extraction &amp; UUID Resolution Pipeline</span>
+          <span class="arch-badge">Cypher Optimization · RFC Issue #262</span>
+        </div>
+        <div class="arch-grid">
+          <div class="arch-node">
+            <span class="arch-node-tag">Stage 1 · Cypher Traversal</span>
+            <div class="arch-node-title">Graph Pattern Match</div>
+            <div class="arch-node-desc">Executes Cypher query <code>MATCH (n)-[r]->(m)</code> across all entities and typed relationships in FalkorDB graph memory.</div>
+            <div class="arch-node-meta">Query: <code>MATCH (n)-[r]->(m)</code></div>
+          </div>
+          <div class="arch-node">
+            <span class="arch-node-tag green">Stage 2 · Projection Binding</span>
+            <div class="arch-node-title">UUID Endpoint Projection</div>
+            <div class="arch-node-desc">Directly projects node UUIDs <code>n.id AS source, m.id AS target</code> instead of internal integer FalkorDB IDs.</div>
+            <div class="arch-node-meta">Return: <code>n.id, m.id, TYPE(r), props</code></div>
+          </div>
+          <div class="arch-node">
+            <span class="arch-node-tag amber">Stage 3 · Fail-Safe Adapter</span>
+            <div class="arch-node-title">Defensive Normalizer</div>
+            <div class="arch-node-desc">Casts projected endpoint IDs to <code>str()</code> with graceful legacy edge property fallback; eliminates uncaught <code>KeyError</code>.</div>
+            <div class="arch-node-meta">Safety: <code>record[0] or props.get(...)</code></div>
+          </div>
+          <div class="arch-node">
+            <span class="arch-node-tag purple">Stage 4 · Visualization</span>
+            <div class="arch-node-title">Knowledge Graph UI</div>
+            <div class="arch-node-desc">Transmits valid 4-tuple edge models to Cognee's visual explorer with 100% endpoint integrity and zero crashes.</div>
+            <div class="arch-node-meta">Status: <code>200 OK · D3 / Cytoscape</code></div>
+          </div>
+        </div>
+        <div class="arch-ribbon">
+          <span>⚡ Cypher Graph Traversal</span>
+          <span>➔ Direct Node UUID Projection</span>
+          <span>➔ Defensive Null Fallback</span>
+          <span>➔ Interactive Visual Graph</span>
+        </div>
       </div>
 
       <h3>Root Cause Analysis</h3>

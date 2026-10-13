@@ -91,6 +91,123 @@
       font-size: 0.88rem;
       color: #e2e8f0;
     }
+    /* Senior Systems Engineering Architecture Canvas */
+    .arch-card {
+      background: #0c1220;
+      border: 1px solid #1e293b;
+      border-radius: 0.85rem;
+      padding: 1.75rem 1.5rem;
+      margin: 2.25rem 0;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+    .arch-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.25rem;
+      border-bottom: 1px solid #1e293b;
+      padding-bottom: 0.75rem;
+    }
+    .arch-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--accent-light);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .arch-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 0.25rem;
+      background: rgba(56, 189, 248, 0.1);
+      color: #38bdf8;
+      border: 1px solid rgba(56, 189, 248, 0.25);
+    }
+    .arch-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+    @media (min-width: 768px) {
+      .arch-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+    .arch-node {
+      background: #060913;
+      border: 1px solid #1e293b;
+      border-radius: 0.65rem;
+      padding: 1.15rem 1rem;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .arch-node:hover {
+      border-color: rgba(139, 92, 246, 0.6);
+      transform: translateY(-2px);
+    }
+    .arch-node-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      color: #38bdf8;
+      text-transform: uppercase;
+      margin-bottom: 0.45rem;
+      letter-spacing: 0.05em;
+      font-weight: 600;
+    }
+    .arch-node-tag.green { color: #10b981; }
+    .arch-node-tag.amber { color: #f59e0b; }
+    .arch-node-tag.purple { color: var(--accent-light); }
+    .arch-node-title {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 0.35rem;
+    }
+    .arch-node-desc {
+      font-size: 0.76rem;
+      color: #94a3b8;
+      line-height: 1.5;
+      margin-bottom: 0.75rem;
+    }
+    .arch-node-meta {
+      margin-top: auto;
+      padding-top: 0.65rem;
+      border-top: 1px dashed #1e293b;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      color: #cbd5e1;
+    }
+    .arch-node-meta code {
+      background: #0f172a;
+      color: #cbd5e1;
+      padding: 0.1rem 0.3rem;
+      border-radius: 0.2rem;
+      font-size: 0.7rem;
+    }
+    .arch-ribbon {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      padding: 0.65rem 1rem;
+      margin-top: 1rem;
+      background: rgba(139, 92, 246, 0.06);
+      border: 1px dashed rgba(139, 92, 246, 0.25);
+      border-radius: 0.5rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      color: #c4b5fd;
+    }
+    .arch-ribbon span {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
     .callout {
       border-left: 3px solid var(--accent);
       background: rgba(139, 92, 246, 0.08);
@@ -138,8 +255,43 @@
       While contributing data connectors to Cognee Community, we investigated a persistent crash in <code>cognee-community-hybrid-adapter-falkor</code> (<a href="https://github.com/topoteretes/cognee-community/issues/262" target="_blank" rel="noopener">Issue #262</a>): <strong>every graph dataset containing edges crashed on visualization with <code>KeyError: 'source_node_id'</code></strong>.
     </p>
 
-    <div class="callout amber">
-      <strong>The Blast Radius:</strong> Whenever a user called <code>GET /v1/datasets/{id}/graph</code> (the core endpoint for Cognee's interactive knowledge graph explorer) or <code>get_filtered_graph_data([])</code>, the server returned an uncaught HTTP 500 error on any graph with at least one relationship.
+    <div class="arch-card">
+      <div class="arch-header">
+        <span class="arch-title">Systems Topology: FalkorDB Graph Extraction &amp; UUID Resolution Pipeline</span>
+        <span class="arch-badge">Cypher Optimization · RFC Issue #262</span>
+      </div>
+      <div class="arch-grid">
+        <div class="arch-node">
+          <span class="arch-node-tag">Stage 1 · Cypher Traversal</span>
+          <div class="arch-node-title">Graph Pattern Match</div>
+          <div class="arch-node-desc">Executes Cypher query <code>MATCH (n)-[r]->(m)</code> across all entities and typed relationships in FalkorDB graph memory.</div>
+          <div class="arch-node-meta">Query: <code>MATCH (n)-[r]->(m)</code></div>
+        </div>
+        <div class="arch-node">
+          <span class="arch-node-tag green">Stage 2 · Projection Binding</span>
+          <div class="arch-node-title">UUID Endpoint Projection</div>
+          <div class="arch-node-desc">Directly projects node UUIDs <code>n.id AS source, m.id AS target</code> instead of internal integer FalkorDB IDs.</div>
+          <div class="arch-node-meta">Return: <code>n.id, m.id, TYPE(r), props</code></div>
+        </div>
+        <div class="arch-node">
+          <span class="arch-node-tag amber">Stage 3 · Fail-Safe Adapter</span>
+          <div class="arch-node-title">Defensive Normalizer</div>
+          <div class="arch-node-desc">Casts projected endpoint IDs to <code>str()</code> with graceful legacy edge property fallback; eliminates uncaught <code>KeyError</code>.</div>
+          <div class="arch-node-meta">Safety: <code>record[0] or props.get(...)</code></div>
+        </div>
+        <div class="arch-node">
+          <span class="arch-node-tag purple">Stage 4 · Visualization</span>
+          <div class="arch-node-title">Knowledge Graph UI</div>
+          <div class="arch-node-desc">Transmits valid 4-tuple edge models to Cognee's visual explorer with 100% endpoint integrity and zero crashes.</div>
+          <div class="arch-node-meta">Status: <code>200 OK · D3 / Cytoscape</code></div>
+        </div>
+      </div>
+      <div class="arch-ribbon">
+        <span>⚡ Cypher Graph Traversal</span>
+        <span>➔ Direct Node UUID Projection</span>
+        <span>➔ Defensive Null Fallback</span>
+        <span>➔ Interactive Visual Graph</span>
+      </div>
     </div>
 
     <h2>Root Cause Analysis</h2>

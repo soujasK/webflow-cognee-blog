@@ -90,36 +90,123 @@
       font-size: 0.88rem;
       color: #e2e8f0;
     }
-    .diagram-card {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 0.75rem;
-      padding: 1.5rem;
-      margin: 2rem 0;
-    }
-    .diagram-title {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.8rem;
-      color: var(--accent-light);
-      margin-bottom: 1rem;
-      display: block;
-      text-transform: uppercase;
-    }
-    .flowchart { display: flex; flex-direction: column; gap: 0.75rem; }
-    @media (min-width: 640px) {
-      .flowchart { flex-direction: row; align-items: center; justify-content: space-between; }
-    }
-    .flow-step {
-      background: #0b1120;
+    /* Senior Systems Engineering Architecture Canvas */
+    .arch-card {
+      background: #0c1220;
       border: 1px solid #1e293b;
-      padding: 0.85rem 1rem;
-      border-radius: 0.5rem;
-      flex: 1;
-      text-align: center;
+      border-radius: 0.85rem;
+      padding: 1.75rem 1.5rem;
+      margin: 2.25rem 0;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
     }
-    .flow-step strong { display: block; font-size: 0.88rem; }
-    .flow-step span { font-size: 0.75rem; color: var(--text-muted); }
-    .flow-arrow { color: var(--accent-light); font-weight: bold; text-align: center; }
+    .arch-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.25rem;
+      border-bottom: 1px solid #1e293b;
+      padding-bottom: 0.75rem;
+    }
+    .arch-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--accent-light);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .arch-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 0.25rem;
+      background: rgba(56, 189, 248, 0.1);
+      color: #38bdf8;
+      border: 1px solid rgba(56, 189, 248, 0.25);
+    }
+    .arch-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+    @media (min-width: 768px) {
+      .arch-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+    .arch-node {
+      background: #060913;
+      border: 1px solid #1e293b;
+      border-radius: 0.65rem;
+      padding: 1.15rem 1rem;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .arch-node:hover {
+      border-color: rgba(139, 92, 246, 0.6);
+      transform: translateY(-2px);
+    }
+    .arch-node-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      color: #38bdf8;
+      text-transform: uppercase;
+      margin-bottom: 0.45rem;
+      letter-spacing: 0.05em;
+      font-weight: 600;
+    }
+    .arch-node-tag.green { color: #10b981; }
+    .arch-node-tag.amber { color: #f59e0b; }
+    .arch-node-tag.purple { color: var(--accent-light); }
+    .arch-node-title {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 0.35rem;
+    }
+    .arch-node-desc {
+      font-size: 0.76rem;
+      color: #94a3b8;
+      line-height: 1.5;
+      margin-bottom: 0.75rem;
+    }
+    .arch-node-meta {
+      margin-top: auto;
+      padding-top: 0.65rem;
+      border-top: 1px dashed #1e293b;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      color: #cbd5e1;
+    }
+    .arch-node-meta code {
+      background: #0f172a;
+      color: #cbd5e1;
+      padding: 0.1rem 0.3rem;
+      border-radius: 0.2rem;
+      font-size: 0.7rem;
+    }
+    .arch-ribbon {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      padding: 0.65rem 1rem;
+      margin-top: 1rem;
+      background: rgba(139, 92, 246, 0.06);
+      border: 1px dashed rgba(139, 92, 246, 0.25);
+      border-radius: 0.5rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      color: #c4b5fd;
+    }
+    .arch-ribbon span {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
     .callout {
       border-left: 3px solid var(--accent);
       background: rgba(139, 92, 246, 0.08);
@@ -168,28 +255,42 @@
       Web crawling introduces silent failure modes: HTML navigation wrappers and cookie consent banners corrupt embedding spaces, CSS stylesheet changes trigger redundant recalculations, and unpublished or deleted articles linger in vector memory indefinitely.
     </p>
 
-    <div class="diagram-card">
-      <span class="diagram-title">Data Pipeline: Webflow to Cognee Graph Memory</span>
-      <div class="flowchart">
-        <div class="flow-step">
-          <strong>Webflow API v2</strong>
-          <span>Collections & Live Items</span>
+    <div class="arch-card">
+      <div class="arch-header">
+        <span class="arch-title">Systems Topology: Webflow CMS to Graph Memory Pipeline</span>
+        <span class="arch-badge">dlt replace · DOCUMENT_SOURCE_ATTR</span>
+      </div>
+      <div class="arch-grid">
+        <div class="arch-node">
+          <span class="arch-node-tag">Stage 1 · Ingress</span>
+          <div class="arch-node-title">Webflow API v2</div>
+          <div class="arch-node-desc">OAuth 2.0 / Bearer auth, paginated collection items & live CMS snapshots. Implements 429 exponential backoff.</div>
+          <div class="arch-node-meta">Protocol: <code>GET /v2/collections/{id}/items</code></div>
         </div>
-        <div class="flow-arrow">➔</div>
-        <div class="flow-step">
-          <strong>dlt replace Engine</strong>
-          <span>Markdown Normalization</span>
+        <div class="arch-node">
+          <span class="arch-node-tag green">Stage 2 · DLT Runtime</span>
+          <div class="arch-node-title">AST Transformer</div>
+          <div class="arch-node-desc">Sanitizes raw HTML to Markdown AST, extracts image/code blocks, routes via <code>DOCUMENT_SOURCE_ATTR</code>.</div>
+          <div class="arch-node-meta">Staging: <code>DuckDB Buffer (replace)</code></div>
         </div>
-        <div class="flow-arrow">➔</div>
-        <div class="flow-step">
-          <strong>Cognee Cognify</strong>
-          <span>Entity & Relation Extraction</span>
+        <div class="arch-node">
+          <span class="arch-node-tag amber">Stage 3 · Cognify Core</span>
+          <div class="arch-node-title">Cognify NLP Engine</div>
+          <div class="arch-node-desc">Bypasses tabular SQL schema. LiteLLM dense embeddings + LLM entity-relation triplet extraction.</div>
+          <div class="arch-node-meta">Extractor: <code>(CMSItem)-[:TOPIC]->(Entity)</code></div>
         </div>
-        <div class="flow-arrow">➔</div>
-        <div class="flow-step">
-          <strong>Knowledge Graph</strong>
-          <span>Autonomous Agent Recall</span>
+        <div class="arch-node">
+          <span class="arch-node-tag purple">Stage 4 · Persistence</span>
+          <div class="arch-node-title">Dual Store & RAG</div>
+          <div class="arch-node-desc">Dense vector index (Qdrant/Milvus) for ANN similarity + Cypher graph topology (FalkorDB) for multi-hop recall.</div>
+          <div class="arch-node-meta">Query: <code>await cognee.search(...)</code></div>
         </div>
+      </div>
+      <div class="arch-ribbon">
+        <span>⚡ Ingress: HTTPS JSON</span>
+        <span>➔ Staging: DuckDB Memory</span>
+        <span>➔ Ingestion: DOCUMENT_SOURCE_ATTR</span>
+        <span>➔ Storage: Vector + Cypher Graph</span>
       </div>
     </div>
 
