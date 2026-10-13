@@ -447,7 +447,7 @@
     <div class="hero-banner">
       <h1>Giving AI Agents Enterprise Memory</h1>
       <p>
-        Building production-grade data connectors (Webflow, Slab, Freshdesk, tl;dv, Opsgenie, DocuSign) and hunting down deep graph database engine bugs in Cognee for Mergetober 2026.
+        Building production-grade data connectors (Webflow, Slab, Freshdesk, tl;dv, Opsgenie, DocuSign, SEC EDGAR) and hunting down deep graph database engine bugs in Cognee for Mergetober 2026.
       </p>
       <div class="meta-tags">
         <span class="badge">Mergetober 2026</span>
@@ -467,7 +467,9 @@
       <button class="tab-btn" onclick="switchArticle('falkordb', this)">5. FalkorDB Bugfix</button>
       <button class="tab-btn" onclick="switchArticle('opsgenie', this)">6. Opsgenie Incidents</button>
       <button class="tab-btn" onclick="switchArticle('docusign', this)">7. DocuSign Contracts</button>
+      <button class="tab-btn" onclick="switchArticle('edgar', this)">8. SEC EDGAR Filings</button>
     </div>
+
 
 
     <!-- ==================== ARTICLE 1: WEBFLOW ==================== -->
@@ -985,6 +987,64 @@ edges = [
         <strong>Status:</strong> 100% test pass rate with pytest and clean Ruff formatting. Ready for pull request submission upon maintainer assignment.
       </div>
     </article>
+
+    <!-- ==================== ARTICLE 8: SEC EDGAR ==================== -->
+    <article id="art-edgar" class="article-section">
+      <h2>Financial Memory & Corporate Disclosures: The SEC EDGAR Connector</h2>
+      <div style="margin-bottom: 1.25rem;"><a href="edgar.html" style="color: var(--accent-dark); font-size: 0.88rem; text-decoration: underline; font-family: 'JetBrains Mono', monospace; font-weight: 600;">Dedicated Article Permalink: edgar.html</a></div>
+      <p>
+        Public company regulatory filings (10-K, 10-Q, 8-K) provide audited financial statements, operational risk disclosures, and material event disclosures. Because SEC filings are distributed as dense HTML archives, autonomous financial agents often hallucinate quarterly corporate information.
+      </p>
+      <p>
+        We implemented <code>cognee-community-connector-edgar</code> to directly stream corporate filings from the free, public SEC EDGAR API into Cognee's persistent memory layer and knowledge graphs.
+      </p>
+
+      <div class="arch-card">
+        <div class="arch-header">
+          <span class="arch-title">Systems Topology: SEC Filings to Financial Graph Memory</span>
+          <span class="arch-badge">dlt merge · DOCUMENT_SOURCE_ATTR = "edgar"</span>
+        </div>
+        <div class="arch-grid">
+          <div class="arch-node">
+            <span class="arch-node-tag">Stage 1 · Ingress</span>
+            <div class="arch-node-title">SEC EDGAR API</div>
+            <div class="arch-node-desc">Free public REST access (no API key required). Resolves company CIK indices and filing manifests.</div>
+            <div class="arch-node-meta">Protocol: <code>GET /submissions/CIK{cik}.json</code></div>
+          </div>
+          <div class="arch-node">
+            <span class="arch-node-tag green">Stage 2 · Parser</span>
+            <div class="arch-node-title">HTML Sanitizer</div>
+            <div class="arch-node-desc">Extracts narrative text while preserving Item 1A Risk Factors, Item 7 MD&A, and financial notes.</div>
+            <div class="arch-node-meta">Marker: <code>clean_filing_html</code></div>
+          </div>
+          <div class="arch-node">
+            <span class="arch-node-tag amber">Stage 3 · Cognify Core</span>
+            <div class="arch-node-title">Entity Graph</div>
+            <div class="arch-node-desc">Extracts typed triplets: (PublicCompany)-[:FILED_REPORT]->(Filing) and (Filing)-[:DISCLOSES]->(RiskFactor).</div>
+            <div class="arch-node-meta">Graph: <code>Financial Triplet Extractor</code></div>
+          </div>
+          <div class="arch-node">
+            <span class="arch-node-tag purple">Stage 4 · Search</span>
+            <div class="arch-node-title">Multi-Hop RAG</div>
+            <div class="arch-node-desc">Instant quantitative recall over supply-chain risks, material litigation, and quarterly revenue drivers.</div>
+            <div class="arch-node-meta">Query: <code>await cognee.search(...)</code></div>
+          </div>
+        </div>
+      </div>
+
+      <h3>Pytest Verification</h3>
+      <p>
+        Verified with complete offline mock fixtures simulating SEC submission manifests and HTML section extraction:
+      </p>
+<pre><code>def test_edgar_source_document_generation(mock_submissions_response):
+    mock_client = httpx.Client(transport=httpx.MockTransport(mock_handler))
+    source = edgar_source(ciks=["320193"], form_types=["10-K"], http_client=mock_client)
+    assert getattr(source, DOCUMENT_SOURCE_ATTR) == "edgar"</code></pre>
+      <div class="callout green">
+        <strong>Status:</strong> 100% test pass rate with pytest and clean Ruff formatting. Ready for pull request submission upon maintainer assignment.
+      </div>
+    </article>
+
 
   </div>
 

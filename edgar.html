@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Financial Memory & Corporate Disclosures: Building the SEC EDGAR Connector for Cognee | Soujas K</title>
+  <meta name="description" content="Technical deep-dive on ingesting 10-K, 10-Q, and 8-K filings from the public SEC EDGAR API into Cognee persistent graph memory for Mergetober 2026.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --card-bg: #ffffff;
+      --card-hover: #f1f5f9;
+      --card-border: #e2e8f0;
+      --card-border-strong: #cbd5e1;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --text-subtle: #64748b;
+      --accent: #0284c7;
+      --accent-dark: #0369a1;
+      --accent-light: #e0f2fe;
+      --code-bg: #0b1120;
+      --code-text: #f1f5f9;
+      --inline-code-bg: #f1f5f9;
+      --inline-code-border: #e2e8f0;
+      --green: #059669;
+      --green-light: #ecfdf5;
+      --green-border: #a7f3d0;
+      --blue: #0284c7;
+      --blue-light: #f0f9ff;
+      --blue-border: #bae6fd;
+      --amber: #d97706;
+      --amber-light: #fffbeb;
+      --amber-border: #fde68a;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg);
+      color: var(--text-main);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.75;
+      padding: 0 1.25rem 5rem;
+      -webkit-font-smoothing: antialiased;
+      background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+    header.site-header {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 2.5rem 0 1.5rem;
+      border-bottom: 1px solid var(--card-border-strong);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .brand { font-weight: 800; font-size: 1.2rem; color: var(--text-main); text-decoration: none; letter-spacing: -0.02em; }
+    .brand span { color: var(--accent); }
+    .nav-links a { color: var(--text-muted); text-decoration: none; margin-left: 1.5rem; font-size: 0.9rem; font-weight: 500; transition: color 0.15s ease; }
+    .nav-links a:hover { color: var(--text-main); }
+    .container {
+      max-width: 860px;
+      margin: 2.5rem auto 0;
+      background: var(--surface);
+      border: 1px solid var(--card-border);
+      border-radius: 0.75rem;
+      padding: 2.75rem 2.25rem;
+      box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04);
+      border-top: 4px solid var(--accent);
+    }
+    h1 {
+      font-size: 2.25rem;
+      font-weight: 800;
+      line-height: 1.25;
+      margin-bottom: 1rem;
+      color: var(--text-main);
+      letter-spacing: -0.03em;
+    }
+    .meta-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      align-items: center;
+      margin-bottom: 2rem;
+      font-size: 0.85rem;
+      color: var(--text-subtle);
+      padding-bottom: 1.25rem;
+      border-bottom: 1px solid var(--card-border);
+    }
+    .badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 0.25rem 0.65rem;
+      border-radius: 0.375rem;
+      background: #f1f5f9;
+      color: var(--text-main);
+      border: 1px solid var(--card-border-strong);
+    }
+    .badge.hackathon {
+      background: var(--blue-light);
+      color: var(--accent-dark);
+      border-color: var(--blue-border);
+    }
+    h2 {
+      font-size: 1.45rem;
+      font-weight: 700;
+      margin: 2.5rem 0 1rem;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 0.5rem;
+    }
+    h3 {
+      font-size: 1.15rem;
+      font-weight: 600;
+      margin: 1.75rem 0 0.75rem;
+      color: var(--text-main);
+    }
+    p { margin-bottom: 1.35rem; color: var(--text-muted); font-size: 1rem; }
+    p strong { color: var(--text-main); }
+    ul, ol { margin: 0 0 1.5rem 1.5rem; color: var(--text-muted); }
+    li { margin-bottom: 0.5rem; }
+    code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.88em;
+      background: var(--inline-code-bg);
+      border: 1px solid var(--inline-code-border);
+      padding: 0.15em 0.4em;
+      border-radius: 0.25rem;
+      color: var(--text-main);
+    }
+    pre {
+      background: var(--code-bg);
+      color: var(--code-text);
+      padding: 1.25rem 1.5rem;
+      border-radius: 0.5rem;
+      overflow-x: auto;
+      margin: 1.5rem 0 2rem;
+      font-size: 0.88rem;
+      line-height: 1.6;
+      border: 1px solid #1e293b;
+    }
+    pre code {
+      background: transparent;
+      padding: 0;
+      border: none;
+      color: inherit;
+    }
+    .callout {
+      background: var(--blue-light);
+      border: 1px solid var(--blue-border);
+      border-left: 4px solid var(--accent);
+      padding: 1.25rem 1.5rem;
+      border-radius: 0.5rem;
+      margin: 1.75rem 0;
+    }
+    .callout p { margin-bottom: 0; color: #0369a1; font-size: 0.95rem; }
+    .callout p strong { color: #0c4a6e; }
+    .back-link {
+      display: inline-block;
+      margin-bottom: 1.5rem;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .back-link:hover { text-decoration: underline; }
+    footer {
+      max-width: 860px;
+      margin: 3rem auto 0;
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--text-subtle);
+      border-top: 1px solid var(--card-border);
+      padding-top: 2rem;
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <a href="index.html" class="brand">SOUJAS K <span>/</span> ENG BLOG</a>
+    <nav class="nav-links">
+      <a href="index.html">Overview</a>
+      <a href="https://github.com/topoteretes/cognee-community" target="_blank" rel="noopener">Cognee Community</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <a href="index.html" class="back-link">Return to Research Index</a>
+    
+    <h1>Financial Memory & Corporate Disclosures: Building the SEC EDGAR Connector for Cognee</h1>
+    
+    <div class="meta-bar">
+      <span class="badge hackathon">MERGETOBER 2026</span>
+      <span class="badge">CONNECTOR</span>
+      <span class="badge">FINTECH</span>
+      <span class="badge">COGNIFY</span>
+      <span>Published: October 13, 2026</span>
+      <span>Target Issue: topoteretes/cognee#5701</span>
+    </div>
+
+    <p>
+      Public company regulatory filings (10-K annual reports, 10-Q quarterly statements, and 8-K material event reports) represent the gold standard of enterprise ground truth: audited financial results, operational risk disclosures, legal proceedings, and executive commentary.
+    </p>
+
+    <p>
+      While researchers and quantitative analysts regularly query these documents, automated AI systems struggle because public filings are delivered as massive, convoluted HTML documents filled with non-standard markup. We authored <code>cognee-community-connector-edgar</code> to directly stream filings from the SEC's free public EDGAR API into Cognee's persistent memory layer.
+    </p>
+
+    <h2>1. The Financial Intelligence Bottleneck</h2>
+    <p>
+      When an investment analyst or enterprise copilot asks:
+    </p>
+    <ul>
+      <li><em>"Which semiconductor suppliers did Company X identify as single-source bottlenecks in their latest 10-K?"</em></li>
+      <li><em>"What new litigation risks were added to the 10-Q compared to the previous quarter?"</em></li>
+      <li><em>"Summarize material acquisition events filed in recent 8-Ks."</em></li>
+    </ul>
+    <p>
+      Generic LLMs fail because filing text is rarely in pre-training data at the latest quarterly cutoff. By linking Cognee with SEC EDGAR, agents query structured corporate memory with verifiable provenance down to the SEC accession number.
+    </p>
+
+    <div class="callout">
+      <p><strong>Zero API Key Requirement:</strong> The SEC EDGAR API is free and public. In compliance with SEC policies, the connector enforces declared <code>User-Agent</code> headers and rate limiting to prevent IP throttling.</p>
+    </div>
+
+    <h2>2. EDGAR REST API Architecture</h2>
+    <p>
+      The connector implements a modular <code>EdgarClient</code> executing two distinct ingress phases:
+    </p>
+    <ul>
+      <li><strong>Submissions Metadata (<code>/submissions/CIK{cik}.json</code>):</strong> Pulls company name, ticker symbols, and filing indices mapped by accession numbers and form types.</li>
+      <li><strong>Filing Archives Ingestion:</strong> Resolves the primary document HTML from the SEC archives (<code>www.sec.gov/Archives/edgar/data/{cik}/{accession}/{filename}</code>) and extracts clean narrative text.</li>
+    </ul>
+
+    <pre><code># packages/connector/edgar/cognee_community_connector_edgar/edgar.py
+import dlt
+import httpx
+from typing import Any
+from collections.abc import Iterator
+
+DOCUMENT_SOURCE_ATTR = "cognee_document_source"
+
+class EdgarClient:
+    def __init__(self, user_agent: str = "CogneeResearchAgent research@example.com"):
+        self.user_agent = user_agent
+        self.base_url = "https://data.sec.gov"
+
+    def get_submissions(self, cik: str) -> dict[str, Any]:
+        # Queries submissions metadata with zero-padded CIK
+        ...
+
+    def get_filing_document(self, cik: str, accession_number: str, doc_name: str) -> str:
+        # Retrieves raw filing document from SEC archives
+        ...</code></pre>
+
+    <h2>3. Knowledge Graph Topology</h2>
+    <p>
+      Once filings are parsed and processed by <code>cognify()</code>, Cognee extracts structured entities and cross-document relationships:
+    </p>
+    <ul>
+      <li><code>(PublicCompany)-[:FILED_REPORT]->(FilingDocument)</code></li>
+      <li><code>(FilingDocument)-[:DISCLOSES_RISK]->(RiskFactorEntity)</code></li>
+      <li><code>(FilingDocument)-[:COVERS_PERIOD]->(FiscalQuarter)</code></li>
+    </ul>
+
+    <h2>4. Resilient Offline Testing</h2>
+    <p>
+      The package includes a comprehensive unit test suite executing with 100% offline isolation:
+    </p>
+    <pre><code># packages/connector/edgar/tests/test_edgar.py
+def test_edgar_source_document_generation(mock_submissions_response):
+    mock_client = httpx.Client(transport=httpx.MockTransport(mock_handler))
+    source = edgar_source(
+        ciks=["320193"],
+        form_types=["10-K"],
+        http_client=mock_client,
+    )
+    assert getattr(source, DOCUMENT_SOURCE_ATTR) == "edgar"</code></pre>
+
+    <h2>5. Implementation Verification</h2>
+    <p>
+      Verified locally in the Cognee community repository:
+    </p>
+    <ul>
+      <li>100% test pass rate with <code>pytest</code>.</li>
+      <li>Strict compliance with <code>ruff</code> formatting.</li>
+      <li>DCO signed-off commit history.</li>
+    </ul>
+  </main>
+
+  <footer>
+    <p>Authored by Soujas K for Mergetober 2026. Published under Apache-2.0 License.</p>
+  </footer>
+</body>
+</html>
