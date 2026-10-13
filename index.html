@@ -447,13 +447,14 @@
     <div class="hero-banner">
       <h1>Giving AI Agents Enterprise Memory</h1>
       <p>
-        Building production-grade data connectors (Webflow, Slab, Freshdesk, tl;dv, Opsgenie, DocuSign, SEC EDGAR, Gong, Front) and hunting down deep graph database engine bugs in Cognee for Mergetober 2026.
+        Building 14 production-grade data connectors & core graph database solutions (Webflow, Slab, Freshdesk, tl;dv, FalkorDB, Opsgenie, DocuSign, SEC EDGAR, Gong, Front, Google Search Console, Grain, Egnyte, Read.ai) with 100% offline architectural test suites for Mergetober 2026.
       </p>
       <div class="meta-tags">
         <span class="badge">Mergetober 2026</span>
         <span class="badge green">Cognee Community</span>
         <span class="badge blue">Knowledge Graphs</span>
-        <span class="badge amber">Hybrid Adapters</span>
+        <span class="badge amber">14 Solutions</span>
+        <span class="badge">114+ Offline Tests</span>
         <span class="badge">Author: Soujas K</span>
       </div>
     </div>
@@ -470,6 +471,10 @@
       <button class="tab-btn" onclick="switchArticle('edgar', this)">8. SEC EDGAR Filings</button>
       <button class="tab-btn" onclick="switchArticle('gong', this)">9. Gong Transcripts</button>
       <button class="tab-btn" onclick="switchArticle('front', this)">10. Front Inboxes</button>
+      <button class="tab-btn" onclick="switchArticle('gsc', this)">11. Search Console</button>
+      <button class="tab-btn" onclick="switchArticle('grain', this)">12. Grain Meetings</button>
+      <button class="tab-btn" onclick="switchArticle('egnyte', this)">13. Egnyte Storage</button>
+      <button class="tab-btn" onclick="switchArticle('readai', this)">14. Read.ai Intelligence</button>
     </div>
 
 
@@ -1161,6 +1166,242 @@ edges = [
       </div>
     </article>
 
+    <!-- ==================== ARTICLE 11: GOOGLE SEARCH CONSOLE ==================== -->
+    <article id="art-gsc" class="article-section">
+      <h2>Organic SERP Intelligence: The Google Search Console Connector</h2>
+      <div style="margin-bottom: 1.25rem;"><a href="gsc.html" style="color: var(--accent-dark); font-size: 0.88rem; text-decoration: underline; font-family: 'JetBrains Mono', monospace; font-weight: 600;">Dedicated Article Permalink: gsc.html</a></div>
+      <p>
+        Targeting official maintainer issue <code>topoteretes/cognee#4793</code>, this connector streams organic search queries, impressions, click-through rates (CTR), and average SERP rankings into Cognee's persistent memory.
+      </p>
+
+      <div class="arch-card">
+        <div class="arch-header">
+          <span class="arch-title">Systems Topology: GSC Search Analytics to Graph Memory</span>
+          <span class="arch-badge">dlt replace · DOCUMENT_SOURCE_ATTR = "google_search_console"</span>
+        </div>
+        <div class="arch-grid">
+          <div class="arch-node">
+            <span class="arch-node-tag">Stage 1 · Ingress</span>
+            <div class="arch-node-title">Google Webmasters API</div>
+            <div class="arch-node-desc">OAuth 2.0 / Service Account auth. Enforces RFC 3986 percent-encoded site URLs and 25,000 row limits.</div>
+            <div class="arch-node-meta">Endpoint: <code>POST /sites/{siteUrl}/searchAnalytics/query</code></div>
+          </div>
+          <div class="arch-node">
+            <span class="arch-node-tag green">Stage 2 · Staging</span>
+            <div class="arch-node-title">Freshness & Deduplication</div>
+            <div class="arch-node-desc">Handles dataState freshness lag, anonymized query privacy masks, and query-page deduplication.</div>
+            <div class="arch-node-meta">Staging: <code>DuckDB Buffer (replace)</code></div>
+          </div>
+          <div class="arch-node">
+            <span class="arch-node-tag amber">Stage 3 · Cognify Core</span>
+            <div class="arch-node-title">SERP Knowledge Graph</div>
+            <div class="arch-node-desc">Synthesizes entities: (Query)-[:LANDS_ON]->(Page) and (Topic)-[:HAS_SERP_DEMAND]->(Query).</div>
+            <div class="arch-node-meta">Pipeline: <code>Cognify Graph Triplet Extraction</code></div>
+          </div>
+          <div class="arch-node">
+            <span class="arch-node-tag purple">Stage 4 · Search</span>
+            <div class="arch-node-title">Demand-Aware RAG</div>
+            <div class="arch-node-desc">Agents prioritize high-demand search intents with poor ranking positions for automated content generation.</div>
+            <div class="arch-node-meta">Query: <code>await cognee.search(...)</code></div>
+          </div>
+        </div>
+      </div>
+
+      <h3>Pytest Verification (100% Offline)</h3>
+      <p>11/11 tests pass offline covering data freshness toggling, privacy fallbacks, URL encoding, and row capping:</p>
+<pre><code>packages/connector/google_search_console/tests/test_google_search_console.py::test_normalize_site_url_domain_and_prefix PASSED
+packages/connector/google_search_console/tests/test_google_search_console.py::test_row_to_document_metrics_formatting PASSED
+packages/connector/google_search_console/tests/test_google_search_console.py::test_gsc_source_document_mode_routing PASSED
+packages/connector/google_search_console/tests/test_arch_fail_data_state_freshness_toggle PASSED
+packages/connector/google_search_console/tests/test_arch_fail_anonymized_query_fallback PASSED
+packages/connector/google_search_console/tests/test_arch_fail_url_encoded_site_property_routing PASSED
+packages/connector/google_search_console/tests/test_arch_fail_query_page_combinatorial_deduplication PASSED
+packages/connector/google_search_console/tests/test_arch_fail_empty_site_performance_safe_termination PASSED
+packages/connector/google_search_console/tests/test_arch_fail_row_limit_threshold_capping PASSED
+packages/connector/google_search_console/tests/test_arch_fail_dimensional_breakdown_beyond_query_page PASSED
+packages/connector/google_search_console/tests/test_arch_fail_missing_credentials PASSED</code></pre>
+      <div class="callout green">
+        <strong>Status:</strong> 11/11 tests passed in 4.05s. Branch <code>feature/google-search-console-connector</code> committed with DCO. Upstream proposal submitted to #4793 (Comment ID 6152964722).
+      </div>
+    </article>
+
+    <!-- ==================== ARTICLE 12: GRAIN ==================== -->
+    <article id="art-grain" class="article-section">
+      <h2>Video Meeting Highlights & Key Moments: The Grain Connector</h2>
+      <div style="margin-bottom: 1.25rem;"><a href="grain.html" style="color: var(--accent-dark); font-size: 0.88rem; text-decoration: underline; font-family: 'JetBrains Mono', monospace; font-weight: 600;">Dedicated Article Permalink: grain.html</a></div>
+      <p>
+        Targeting official maintainer issue <code>topoteretes/cognee#4739</code>, this connector ingests video meeting recordings, participant rosters, AI-curated highlights, key moments, and time-stamped transcript sentences.
+      </p>
+
+      <div class="arch-card">
+        <div class="arch-header">
+          <span class="arch-title">Systems Topology: Grain Highlights to Conversational Memory</span>
+          <span class="arch-badge">dlt replace · DOCUMENT_SOURCE_ATTR = "grain"</span>
+        </div>
+        <div class="arch-grid">
+          <div class="arch-node">
+            <span class="arch-node-tag">Stage 1 · Ingress</span>
+            <div class="arch-node-title">Grain Public API</div>
+            <div class="arch-node-desc">Personal access token authentication. Streams recordings, highlight clips, and multi-speaker transcripts.</div>
+            <div class="arch-node-meta">Endpoint: <code>GET /v1/recordings</code></div>
+          </div>
+          <div class="arch-node">
+            <span class="arch-node-tag green">Stage 2 · Staging</span>
+            <div class="arch-node-title">Sub-Second Precision</div>
+            <div class="arch-node-desc">Formats millisecond offsets to HH:MM:SS, filters deleted clips, and isolates in-flight transcript queues.</div>
+            <div class="arch-node-meta">Staging: <code>DuckDB Buffer (replace)</code></div>
+          </div>
+          <div class="arch-node">
+            <span class="arch-node-tag amber">Stage 3 · Cognify Core</span>
+            <div class="arch-node-title">Conversational Graph</div>
+            <div class="arch-node-desc">Synthesizes entities: (Decision)-[:AGREED_AT]->(Timestamp) and (Speaker)-[:HIGHLIGHTED]->(Concept).</div>
+            <div class="arch-node-meta">Pipeline: <code>Cognify Graph Triplet Extraction</code></div>
+          </div>
+          <div class="arch-node">
+            <span class="arch-node-tag purple">Stage 4 · Search</span>
+            <div class="arch-node-title">Meeting Intelligence</div>
+            <div class="arch-node-desc">Agents retrieve exact meeting consensus, video playback offsets, and attendee commitments.</div>
+            <div class="arch-node-meta">Query: <code>await cognee.search(...)</code></div>
+          </div>
+        </div>
+      </div>
+
+      <h3>Pytest Verification (100% Offline)</h3>
+      <p>11/11 tests pass offline covering sub-second highlight clipping, in-flight transcripts, and speaker deduplication:</p>
+<pre><code>packages/connector/grain/tests/test_grain.py::test_format_time_ms_sub_minute_and_multi_hour PASSED
+packages/connector/grain/tests/test_grain.py::test_recording_to_document_with_highlights_and_transcripts PASSED
+packages/connector/grain/tests/test_grain.py::test_grain_source_document_mode_routing PASSED
+packages/connector/grain/tests/test_arch_fail_empty_highlights_pending_processing PASSED
+packages/connector/grain/tests/test_arch_fail_subsecond_highlight_clipping_boundary PASSED
+packages/connector/grain/tests/test_arch_fail_unidentified_speaker_transcript_fallback PASSED
+packages/connector/grain/tests/test_arch_fail_speaker_deduplication_stability PASSED
+packages/connector/grain/tests/test_arch_fail_base_url_trailing_slash_normalization PASSED
+packages/connector/grain/tests/test_arch_fail_deleted_clip_empty_text_omission PASSED
+packages/connector/grain/tests/test_arch_fail_zero_recordings_safe_termination PASSED
+packages/connector/grain/tests/test_arch_fail_missing_credentials PASSED</code></pre>
+      <div class="callout green">
+        <strong>Status:</strong> 11/11 tests passed in 3.03s. Branch <code>feature/grain-connector</code> committed with DCO. Upstream proposal submitted to #4739 (Comment ID 6153012045).
+      </div>
+    </article>
+
+    <!-- ==================== ARTICLE 13: EGNYTE ==================== -->
+    <article id="art-egnyte" class="article-section">
+      <h2>Enterprise Cloud Storage & ACL Boundaries: The Egnyte Connector</h2>
+      <div style="margin-bottom: 1.25rem;"><a href="egnyte.html" style="color: var(--accent-dark); font-size: 0.88rem; text-decoration: underline; font-family: 'JetBrains Mono', monospace; font-weight: 600;">Dedicated Article Permalink: egnyte.html</a></div>
+      <p>
+        Targeting official maintainer issue <code>topoteretes/cognee#4765</code>, this connector navigates deeply nested enterprise file trees, isolates HTTP 403 Forbidden ACL boundaries, and anchors immutable file IDs into Cognee.
+      </p>
+
+      <div class="arch-card">
+        <div class="arch-header">
+          <span class="arch-title">Systems Topology: Egnyte Hierarchies to Enterprise Memory</span>
+          <span class="arch-badge">dlt replace · DOCUMENT_SOURCE_ATTR = "egnyte"</span>
+        </div>
+        <div class="arch-grid">
+          <div class="arch-node">
+            <span class="arch-node-tag">Stage 1 · Ingress</span>
+            <div class="arch-node-title">Egnyte FS API</div>
+            <div class="arch-node-desc">OAuth 2.0 / Bearer auth across tenant domains. Iterative BFS traversal bounded by max_depth ceilings.</div>
+            <div class="arch-node-meta">Endpoint: <code>GET /pubapi/v1/fs/{path}</code></div>
+          </div>
+          <div class="arch-node">
+            <span class="arch-node-tag green">Stage 2 · Staging</span>
+            <div class="arch-node-title">ACL Isolation & IDs</div>
+            <div class="arch-node-desc">Safely skips restricted 403 folders without breaking traversal. Keys on stable entry_id across path moves.</div>
+            <div class="arch-node-meta">Staging: <code>DuckDB Buffer (replace)</code></div>
+          </div>
+          <div class="arch-node">
+            <span class="arch-node-tag amber">Stage 3 · Cognify Core</span>
+            <div class="arch-node-title">Document Graph</div>
+            <div class="arch-node-desc">Synthesizes file hierarchies, provenance metadata, version histories, and text bodies into graph entities.</div>
+            <div class="arch-node-meta">Pipeline: <code>Cognify Graph Triplet Extraction</code></div>
+          </div>
+          <div class="arch-node">
+            <span class="arch-node-tag purple">Stage 4 · Search</span>
+            <div class="arch-node-title">Enterprise Recall</div>
+            <div class="arch-node-desc">Agents answer complex corporate governance inquiries across massive organizational directory trees.</div>
+            <div class="arch-node-meta">Query: <code>await cognee.search(...)</code></div>
+          </div>
+        </div>
+      </div>
+
+      <h3>Pytest Verification (100% Offline)</h3>
+      <p>12/12 tests pass offline covering depth ceiling guards, 403 forbidden isolation, and entry ID stability:</p>
+<pre><code>packages/connector/egnyte/tests/test_egnyte.py::test_normalize_domain_slugs_and_urls PASSED
+packages/connector/egnyte/tests/test_egnyte.py::test_format_file_size PASSED
+packages/connector/egnyte/tests/test_egnyte.py::test_file_to_document_formatting_and_provenance PASSED
+packages/connector/egnyte/tests/test_egnyte.py::test_egnyte_source_document_mode_routing PASSED
+packages/connector/egnyte/tests/test_arch_fail_folder_tree_depth_ceiling_guard PASSED
+packages/connector/egnyte/tests/test_arch_fail_acl_permission_forbidden_isolation PASSED
+packages/connector/egnyte/tests/test_arch_fail_persistent_entry_id_stability_across_path_rename PASSED
+packages/connector/egnyte/tests/test_arch_fail_zero_byte_placeholder_handling PASSED
+packages/connector/egnyte/tests/test_arch_fail_file_locked_concurrency_metadata PASSED
+packages/connector/egnyte/tests/test_arch_fail_special_characters_in_folder_path_url_encoding PASSED
+packages/connector/egnyte/tests/test_arch_fail_empty_root_folder_safe_termination PASSED
+packages/connector/egnyte/tests/test_arch_fail_missing_credentials PASSED</code></pre>
+      <div class="callout green">
+        <strong>Status:</strong> 12/12 tests passed in 8.97s. Branch <code>feature/egnyte-connector</code> committed with DCO. Upstream proposal submitted to #4765 (Comment ID 6153071394).
+      </div>
+    </article>
+
+    <!-- ==================== ARTICLE 14: READ.AI ==================== -->
+    <article id="art-readai" class="article-section">
+      <h2>Meeting Intelligence & Executive Summaries: The Read.ai Connector</h2>
+      <div style="margin-bottom: 1.25rem;"><a href="readai.html" style="color: var(--accent-dark); font-size: 0.88rem; text-decoration: underline; font-family: 'JetBrains Mono', monospace; font-weight: 600;">Dedicated Article Permalink: readai.html</a></div>
+      <p>
+        Targeting official maintainer issue <code>topoteretes/cognee#4742</code>, this connector ingests meeting summaries, timestamped discussion chapters, owner-attributed action items, and conversational sentiment metrics.
+      </p>
+
+      <div class="arch-card">
+        <div class="arch-header">
+          <span class="arch-title">Systems Topology: Read.ai Intelligence to Knowledge Graph</span>
+          <span class="arch-badge">dlt replace · DOCUMENT_SOURCE_ATTR = "read_ai"</span>
+        </div>
+        <div class="arch-grid">
+          <div class="arch-node">
+            <span class="arch-node-tag">Stage 1 · Ingress</span>
+            <div class="arch-node-title">Read.ai REST API</div>
+            <div class="arch-node-desc">Bearer token auth. Cursor pagination over meeting entities with page budget ceilings and URL encoding.</div>
+            <div class="arch-node-meta">Endpoint: <code>GET /v1/meetings</code></div>
+          </div>
+          <div class="arch-node">
+            <span class="arch-node-tag green">Stage 2 · Staging</span>
+            <div class="arch-node-title">Enrichment Readiness</div>
+            <div class="arch-node-desc">Handles in-flight processing state, action item owner nullability, and sub-second chapter offsets.</div>
+            <div class="arch-node-meta">Staging: <code>DuckDB Buffer (replace)</code></div>
+          </div>
+          <div class="arch-node">
+            <span class="arch-node-tag amber">Stage 3 · Cognify Core</span>
+            <div class="arch-node-title">Action & Topic Graph</div>
+            <div class="arch-node-desc">Synthesizes entities: (Meeting)-[:DECIDED]->(ActionItem) and (Topic)-[:DISCUSSED_IN]->(Chapter).</div>
+            <div class="arch-node-meta">Pipeline: <code>Cognify Graph Triplet Extraction</code></div>
+          </div>
+          <div class="arch-node">
+            <span class="arch-node-tag purple">Stage 4 · Search</span>
+            <div class="arch-node-title">Strategic Recall</div>
+            <div class="arch-node-desc">Agents answer complex executive questions regarding team decisions, deadlines, and project status.</div>
+            <div class="arch-node-meta">Query: <code>await cognee.search(...)</code></div>
+          </div>
+        </div>
+      </div>
+
+      <h3>Pytest Verification (100% Offline)</h3>
+      <p>11/11 tests pass offline covering async readiness lag, action item owner defaults, and chapter offsets:</p>
+<pre><code>packages/connector/read_ai/tests/test_read_ai.py::test_format_time_ms_and_url_normalization PASSED
+packages/connector/read_ai/tests/test_read_ai.py::test_meeting_to_document_full_report_formatting PASSED
+packages/connector/read_ai/tests/test_read_ai.py::test_read_ai_source_document_mode_routing PASSED
+packages/connector/read_ai/tests/test_arch_fail_async_enrichment_in_flight_status PASSED
+packages/connector/read_ai/tests/test_arch_fail_action_item_missing_owner_fallback PASSED
+packages/connector/read_ai/tests/test_arch_fail_subsecond_chapter_timestamp_offsets PASSED
+packages/connector/read_ai/tests/test_arch_fail_speakerless_key_questions_handling PASSED
+packages/connector/read_ai/tests/test_arch_fail_cursor_pagination_budget_limit PASSED
+packages/connector/read_ai/tests/test_arch_fail_special_characters_in_meeting_id_url_encoding PASSED
+packages/connector/read_ai/tests/test_arch_fail_zero_meetings_safe_termination PASSED
+packages/connector/read_ai/tests/test_arch_fail_missing_token_raises PASSED</code></pre>
+      <div class="callout green">
+        <strong>Status:</strong> 11/11 tests passed in 2.50s. Branch <code>feature/read-ai-connector</code> committed with DCO. Upstream proposal submitted to #4742 (Comment ID 6153111391).
+      </div>
+    </article>
 
   </div>
 

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Conversational Highlights & Meeting Memory: Grain Connector for Cognee | Soujas K</title>
+  <meta name="description" content="Technical deep-dive on syncing Grain video recordings, AI highlights, key moments, and timestamped transcripts into Cognee graph memory for Mergetober 2026.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --card-bg: #ffffff;
+      --card-hover: #f1f5f9;
+      --card-border: #e2e8f0;
+      --card-border-strong: #cbd5e1;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --text-subtle: #64748b;
+      --accent: #0284c7;
+      --accent-dark: #0369a1;
+      --accent-light: #e0f2fe;
+      --code-bg: #0b1120;
+      --code-text: #f1f5f9;
+      --inline-code-bg: #f1f5f9;
+      --inline-code-border: #e2e8f0;
+      --green: #059669;
+      --green-light: #ecfdf5;
+      --green-border: #a7f3d0;
+      --blue: #0284c7;
+      --blue-light: #f0f9ff;
+      --blue-border: #bae6fd;
+      --amber: #d97706;
+      --amber-light: #fffbeb;
+      --amber-border: #fde68a;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg);
+      color: var(--text-main);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.75;
+      padding: 0 1.25rem 5rem;
+      -webkit-font-smoothing: antialiased;
+      background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+    header.site-header {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 2.5rem 0 1.5rem;
+      border-bottom: 1px solid var(--card-border-strong);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .brand { font-weight: 800; font-size: 1.2rem; color: var(--text-main); text-decoration: none; letter-spacing: -0.02em; }
+    .brand span { color: var(--accent); }
+    .nav-links a { color: var(--text-muted); text-decoration: none; font-size: 0.9rem; margin-left: 1.5rem; font-weight: 500; }
+    .nav-links a:hover { color: var(--text-main); }
+    main { max-width: 860px; margin: 2.5rem auto 0; background: var(--surface); border: 1px solid var(--card-border); border-radius: 0.75rem; padding: 2.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.04); }
+    h1 { font-size: 2.1rem; font-weight: 800; line-height: 1.25; margin-bottom: 0.75rem; letter-spacing: -0.03em; }
+    .subtitle { font-size: 1.05rem; color: var(--text-muted); margin-bottom: 1.5rem; line-height: 1.6; }
+    .meta-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 2rem; border-bottom: 1px solid var(--card-border); padding-bottom: 1.5rem; }
+    .badge { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 600; padding: 0.25rem 0.65rem; border-radius: 0.375rem; background: #f1f5f9; color: var(--text-main); border: 1px solid var(--card-border-strong); text-transform: uppercase; }
+    .badge.green { background: var(--green-light); color: var(--green); border-color: var(--green-border); }
+    .badge.blue { background: var(--blue-light); color: var(--blue); border-color: var(--blue-border); }
+    .badge.amber { background: var(--amber-light); color: var(--amber); border-color: var(--amber-border); }
+    h2 { font-size: 1.5rem; font-weight: 800; margin: 2rem 0 1rem; letter-spacing: -0.02em; border-top: 1px solid var(--card-border); padding-top: 1.5rem; }
+    p { margin-bottom: 1.25rem; color: var(--text-muted); font-size: 1rem; }
+    ul, ol { margin: 1rem 0 1.5rem 1.75rem; color: var(--text-muted); }
+    li { margin-bottom: 0.5rem; }
+    code:not(pre code) { font-family: 'JetBrains Mono', monospace; background: var(--inline-code-bg); color: var(--text-main); border: 1px solid var(--inline-code-border); padding: 0.15rem 0.4rem; border-radius: 0.25rem; font-size: 0.88em; }
+    pre { background: var(--code-bg); border: 1px solid #1e293b; border-radius: 0.5rem; padding: 1.25rem; overflow-x: auto; margin: 1.5rem 0; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; line-height: 1.65; color: var(--code-text); }
+    .callout { border-left: 4px solid var(--accent); background: #f8fafc; border-top: 1px solid var(--card-border); border-right: 1px solid var(--card-border); border-bottom: 1px solid var(--card-border); padding: 1.15rem 1.35rem; border-radius: 0 0.5rem 0.5rem 0; margin: 1.75rem 0; }
+    .callout.green { border-left-color: var(--green); background: var(--green-light); border-color: var(--green-border); }
+    footer { max-width: 860px; margin: 3rem auto 0; text-align: center; color: var(--text-subtle); font-size: 0.85rem; font-family: 'JetBrains Mono', monospace; }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <a href="index.html" class="brand">Cognee<span>Memory</span></a>
+    <div class="nav-links">
+      <a href="index.html">Articles Hub</a>
+      <a href="falkordb.html">FalkorDB Core</a>
+      <a href="https://github.com/topoteretes/cognee/issues/4739" target="_blank">Issue #4739</a>
+    </div>
+  </header>
+
+  <main>
+    <h1>Video Highlights & Meeting Decisions: Grain Connector for Cognee</h1>
+    <div class="subtitle">
+      Transforming recorded video meetings, AI highlights, sub-second video clip boundaries, and speaker transcripts into structured graph memory.
+    </div>
+
+    <div class="meta-tags">
+      <span class="badge blue">Issue #4739</span>
+      <span class="badge green">11/11 Tests Passing</span>
+      <span class="badge amber">Grain REST API</span>
+      <span class="badge">DOCUMENT_SOURCE_ATTR = "grain"</span>
+      <span class="badge">Author: Soujas K</span>
+    </div>
+
+    <h2>1. Capturing Conversational Intelligence</h2>
+    <p>
+      Grain enables customer success, product, and sales teams to record calls, create AI highlights, and generate timestamped clip summaries. While transcripts contain raw dialogue, highlights reflect human and AI curated consensus.
+    </p>
+    <p>
+      Ingesting Grain into Cognee extracts action items, customer objections, and technical requirements into knowledge graph nodes, linking decisions directly back to the exact video timestamp.
+    </p>
+
+    <h2>2. Architectural Edge Cases Handled</h2>
+    <ul>
+      <li><strong>Sub-Second Highlight Precision:</strong> Grain offsets operate on fractional millisecond boundaries. Converted to human-readable <code>HH:MM:SS</code> format while preserving exact offsets in document metadata.</li>
+      <li><strong>In-Flight Transcript State:</strong> Freshly uploaded recordings may have highlights generated before transcripts complete speech-to-text processing. The connector safely ingests available metadata without raising <code>KeyError</code>.</li>
+      <li><strong>Unidentified Speaker Normalization:</strong> Guest attendees without account profiles safely default to <code>Unknown Speaker</code> to prevent markdown parsing errors.</li>
+      <li><strong>Speaker Deduplication Stability:</strong> Multi-turn conversations are deduplicated in participant lists.</li>
+      <li><strong>Deleted Clip Omission:</strong> Clips with empty text or deleted flags are excluded to prevent polluting LLM contexts.</li>
+    </ul>
+
+    <h2>3. Offline Verification & Test Suite Summary</h2>
+    <pre><code>============================= test session starts =============================
+platform win32 -- Python 3.11.9, pytest-8.3.3
+rootdir: cognee-community/packages/connector/grain
+collected 11 items
+
+packages/connector/grain/tests/test_grain.py::test_format_time_ms_sub_minute_and_multi_hour PASSED
+packages/connector/grain/tests/test_grain.py::test_recording_to_document_with_highlights_and_transcripts PASSED
+packages/connector/grain/tests/test_grain.py::test_grain_source_document_mode_routing PASSED
+packages/connector/grain/tests/test_arch_fail_empty_highlights_pending_processing PASSED
+packages/connector/grain/tests/test_arch_fail_subsecond_highlight_clipping_boundary PASSED
+packages/connector/grain/tests/test_arch_fail_unidentified_speaker_transcript_fallback PASSED
+packages/connector/grain/tests/test_arch_fail_speaker_deduplication_stability PASSED
+packages/connector/grain/tests/test_arch_fail_base_url_trailing_slash_normalization PASSED
+packages/connector/grain/tests/test_arch_fail_deleted_clip_empty_text_omission PASSED
+packages/connector/grain/tests/test_arch_fail_zero_recordings_safe_termination PASSED
+packages/connector/grain/tests/test_arch_fail_missing_credentials PASSED
+
+============================= 11 passed in 3.03s ==============================</code></pre>
+
+    <div class="callout green">
+      <strong>Engineering Status:</strong> Local branch <code>feature/grain-connector</code> committed with DCO sign-off. Proposal submitted to upstream issue <code>#4739</code> (Comment ID <code>6153012045</code>).
+    </div>
+  </main>
+
+  <footer>
+    <p>Mergetober 2026 Engineering Portfolio &bull; Contributed by Soujas K &bull; Upstream Issue #4739</p>
+  </footer>
+</body>
+</html>
