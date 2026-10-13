@@ -3,15 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Engineering Persistent AI Memory: Mergetober Connector Deep-Dives | Soujas K</title>
-  <meta name="description" content="Technical deep-dives into building production data-source connectors for Cognee: Webflow, Slab, and Freshdesk for Mergetober 2026.">
+  <title>Engineering Enterprise AI Memory: Cognee Connectors & Core Architecture | Soujas K</title>
+  <meta name="description" content="Technical deep-dives into building production data connectors (Webflow, Slab, Freshdesk, tl;dv) and solving core graph database bugs in Cognee for Mergetober 2026.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #0a0d14;
+      --bg: #090d16;
       --card-bg: #111827;
+      --card-hover: #162032;
       --card-border: #1f293d;
       --text-main: #f3f4f6;
       --text-muted: #9ca3af;
@@ -21,6 +22,8 @@
       --code-bg: #050811;
       --green: #10b981;
       --blue: #38bdf8;
+      --amber: #f59e0b;
+      --rose: #f43f5e;
     }
     * {
       box-sizing: border-box;
@@ -32,11 +35,11 @@
       color: var(--text-main);
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       line-height: 1.75;
-      padding: 0 1.25rem 4rem;
+      padding: 0 1.25rem 5rem;
       -webkit-font-smoothing: antialiased;
     }
     header.site-header {
-      max-width: 900px;
+      max-width: 960px;
       margin: 0 auto;
       padding: 2.5rem 0 1.5rem;
       border-bottom: 1px solid var(--card-border);
@@ -45,8 +48,8 @@
       align-items: center;
     }
     .brand {
-      font-weight: 700;
-      font-size: 1.15rem;
+      font-weight: 800;
+      font-size: 1.2rem;
       color: var(--text-main);
       text-decoration: none;
       display: flex;
@@ -67,32 +70,32 @@
       color: var(--text-main);
     }
     .container {
-      max-width: 900px;
+      max-width: 960px;
       margin: 2.5rem auto 0;
     }
     .hero-banner {
-      background: linear-gradient(135deg, rgba(139, 92, 246, 0.12), rgba(59, 130, 246, 0.05));
+      background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(56, 189, 248, 0.08), rgba(16, 185, 129, 0.05));
       border: 1px solid var(--card-border);
-      border-radius: 1rem;
-      padding: 2.5rem 2rem;
-      margin-bottom: 3rem;
+      border-radius: 1.25rem;
+      padding: 2.75rem 2.25rem;
+      margin-bottom: 2.5rem;
       position: relative;
       overflow: hidden;
     }
     .hero-banner h1 {
-      font-size: 2.4rem;
+      font-size: 2.5rem;
       font-weight: 800;
       line-height: 1.2;
       margin-bottom: 1rem;
       letter-spacing: -0.025em;
-      background: linear-gradient(135deg, #ffffff 40%, #c4b5fd 100%);
+      background: linear-gradient(135deg, #ffffff 30%, #c4b5fd 70%, #93c5fd 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
     .hero-banner p {
       font-size: 1.1rem;
       color: var(--text-muted);
-      max-width: 720px;
+      max-width: 780px;
       margin-bottom: 1.5rem;
     }
     .meta-tags {
@@ -103,7 +106,7 @@
     .badge {
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.75rem;
-      padding: 0.25rem 0.65rem;
+      padding: 0.3rem 0.75rem;
       border-radius: 9999px;
       background: var(--accent-glow);
       color: var(--accent-light);
@@ -111,12 +114,28 @@
       text-transform: uppercase;
       letter-spacing: 0.05em;
     }
+    .badge.green {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border-color: rgba(16, 185, 129, 0.3);
+    }
+    .badge.blue {
+      background: rgba(56, 189, 248, 0.15);
+      color: #7dd3fc;
+      border-color: rgba(56, 189, 248, 0.3);
+    }
+    .badge.amber {
+      background: rgba(245, 158, 11, 0.15);
+      color: #fbbf24;
+      border-color: rgba(245, 158, 11, 0.3);
+    }
     .tab-bar {
       display: flex;
       gap: 0.5rem;
       border-bottom: 1px solid var(--card-border);
       margin-bottom: 2.5rem;
       overflow-x: auto;
+      padding-bottom: 0.25rem;
     }
     .tab-btn {
       background: none;
@@ -124,10 +143,11 @@
       color: var(--text-muted);
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.85rem;
-      padding: 0.75rem 1.25rem;
+      padding: 0.85rem 1.25rem;
       cursor: pointer;
       border-bottom: 2px solid transparent;
       transition: all 0.2s;
+      white-space: nowrap;
     }
     .tab-btn:hover {
       color: var(--text-main);
@@ -149,16 +169,16 @@
       to { opacity: 1; transform: translateY(0); }
     }
     h2 {
-      font-size: 1.6rem;
+      font-size: 1.8rem;
       font-weight: 700;
       margin: 2rem 0 1rem;
       color: #ffffff;
       letter-spacing: -0.02em;
     }
     h3 {
-      font-size: 1.2rem;
+      font-size: 1.25rem;
       font-weight: 600;
-      margin: 1.5rem 0 0.75rem;
+      margin: 1.75rem 0 0.85rem;
       color: #f3f4f6;
     }
     p {
@@ -191,13 +211,22 @@
       font-size: 0.88rem;
       line-height: 1.65;
       color: #e2e8f0;
+      position: relative;
     }
     .callout {
       border-left: 3px solid var(--accent);
       background: rgba(139, 92, 246, 0.08);
-      padding: 1rem 1.25rem;
+      padding: 1.15rem 1.35rem;
       border-radius: 0 0.5rem 0.5rem 0;
-      margin: 1.5rem 0;
+      margin: 1.75rem 0;
+    }
+    .callout.green {
+      border-left-color: var(--green);
+      background: rgba(16, 185, 129, 0.08);
+    }
+    .callout.amber {
+      border-left-color: var(--amber);
+      background: rgba(245, 158, 11, 0.08);
     }
     .callout strong {
       color: #fff;
@@ -216,6 +245,7 @@
       color: var(--accent-light);
       margin-bottom: 1rem;
       display: block;
+      letter-spacing: 0.05em;
     }
     .flowchart {
       display: flex;
@@ -251,8 +281,32 @@
       font-weight: bold;
       text-align: center;
     }
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+    .metric-box {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 0.5rem;
+      padding: 1rem;
+      text-align: center;
+    }
+    .metric-value {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--accent-light);
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .metric-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 0.25rem;
+    }
     footer.site-footer {
-      max-width: 900px;
+      max-width: 960px;
       margin: 4rem auto 0;
       padding-top: 2rem;
       border-top: 1px solid var(--card-border);
@@ -280,44 +334,47 @@
     <div class="hero-banner">
       <h1>Giving AI Agents Enterprise Memory</h1>
       <p>
-        Building production-grade data-source connectors for Cognee: turning Webflow CMS, Slab wikis, and Freshdesk support into persistent, self-updating knowledge graph memory.
+        Building production-grade data connectors (Webflow, Slab, Freshdesk, tl;dv) and hunting down deep graph database engine bugs in Cognee for Mergetober 2026.
       </p>
       <div class="meta-tags">
         <span class="badge">Mergetober 2026</span>
-        <span class="badge">Cognee Community</span>
-        <span class="badge">Knowledge Graphs</span>
+        <span class="badge green">Cognee Community</span>
+        <span class="badge blue">Knowledge Graphs</span>
+        <span class="badge amber">Hybrid Adapters</span>
         <span class="badge">Author: Soujas K</span>
       </div>
     </div>
 
     <!-- Article Navigation Tabs -->
     <div class="tab-bar">
-      <button class="tab-btn active" onclick="switchArticle('webflow')">1. Webflow CMS Connector</button>
-      <button class="tab-btn" onclick="switchArticle('slab')">2. Slab Wiki Connector</button>
-      <button class="tab-btn" onclick="switchArticle('freshdesk')">3. Freshdesk Support Connector</button>
+      <button class="tab-btn active" onclick="switchArticle('webflow', this)">1. Webflow CMS</button>
+      <button class="tab-btn" onclick="switchArticle('slab', this)">2. Slab Wiki</button>
+      <button class="tab-btn" onclick="switchArticle('freshdesk', this)">3. Freshdesk Support</button>
+      <button class="tab-btn" onclick="switchArticle('tldv', this)">4. tl;dv Meeting Intelligence</button>
+      <button class="tab-btn" onclick="switchArticle('falkordb', this)">5. FalkorDB Bugfix Deep-Dive</button>
     </div>
 
     <!-- ==================== ARTICLE 1: WEBFLOW ==================== -->
     <article id="art-webflow" class="article-section active">
       <h2>Giving AI Agents a CMS Memory: The Webflow Connector</h2>
       <p>
-        Webflow powers millions of marketing landing pages, technical documentation sites, and engineering blogs. When organizations build AI agents (such as automated support assistants or research copilots), they usually attempt to ingest Webflow content using web crawlers.
+        Webflow powers millions of production web applications, marketing sites, and documentation repositories. When teams deploy autonomous AI agents (such as customer support assistants, technical sales copilots, or internal research bots), they usually resort to web scraping or crawler APIs.
       </p>
       <p>
-        Crawling introduces critical failure modes: HTML boilerplate contaminates the context window, CSS class modifications churn content hashes, and deleted articles remain in vector databases forever.
+        Web crawling introduces silent failure modes: HTML navigation wrappers and cookie consent banners corrupt embedding spaces, CSS stylesheet changes trigger redundant recalculations, and unpublished or deleted articles linger in vector memory indefinitely.
       </p>
 
       <div class="diagram-card">
-        <span class="diagram-title">Data Pipeline: Webflow to Cognee Graph</span>
+        <span class="diagram-title">Data Pipeline: Webflow to Cognee Graph Memory</span>
         <div class="flowchart">
           <div class="flow-step">
             <strong>Webflow API v2</strong>
-            <span>Collections & Items JSON</span>
+            <span>Collections & Live Items</span>
           </div>
           <div class="flow-arrow">➔</div>
           <div class="flow-step">
             <strong>dlt replace Engine</strong>
-            <span>Clean Markdown Rendering</span>
+            <span>Markdown Normalization</span>
           </div>
           <div class="flow-arrow">➔</div>
           <div class="flow-step">
@@ -326,7 +383,7 @@
           </div>
           <div class="flow-arrow">➔</div>
           <div class="flow-step">
-            <strong>Graph Memory</strong>
+            <strong>Knowledge Graph</strong>
             <span>Autonomous Agent Recall</span>
           </div>
         </div>
@@ -334,79 +391,97 @@
 
       <h3>Architectural Design</h3>
       <ul>
-        <li><strong>Document-Mode Routing:</strong> The source declares <code>DOCUMENT_SOURCE_ATTR = "webflow"</code>, ensuring records flow through <code>cognify</code> natural language entity extraction rather than rigid tabular database rows.</li>
-        <li><strong>Markdown Transformation:</strong> Rich HTML fields are transformed into structured markdown headers, bullet lists, and code blocks while preserving canonical URLs and slugs.</li>
-        <li><strong>Automatic Forget-on-Delete:</strong> Built with <code>write_disposition="replace"</code>. When an article is unpublished or removed upstream, it falls out of staging and Cognee's <code>orphan_cleanup</code> automatically purges it from the graph and vector stores.</li>
+        <li><strong>Document-Mode Ingestion:</strong> By attaching <code>DOCUMENT_SOURCE_ATTR = "webflow"</code>, records bypass rigid relational schemas and route directly through Cognee's natural language entity extraction pipeline.</li>
+        <li><strong>Semantic Markdown Formatting:</strong> Raw HTML rich text fields are cleanly converted to GitHub-flavored Markdown headers, lists, and code blocks while preserving canonical URLs and publication timestamps.</li>
+        <li><strong>Automatic Forget-on-Delete:</strong> Utilizing <code>write_disposition="replace"</code>, whenever an article is unpublished or deleted upstream, it falls out of the staging batch and Cognee's <code>orphan_cleanup</code> automatically prunes stale entities and graph edges.</li>
       </ul>
 
-<pre><code># Usage in 4 lines:
-import cognee
+<pre><code>import cognee
 from cognee_community_connector_webflow import webflow_source
 
-source = webflow_source(token="API_TOKEN", site_id="SITE_ID")
+# 1. Initialize connector
+source = webflow_source(token="WEBFLOW_API_TOKEN", site_id="SITE_ID")
+
+# 2. Add to Cognee memory and cognify
 await cognee.add(source)
 await cognee.cognify()
-result = await cognee.search("What announcements were made in our latest product release?")</code></pre>
+
+# 3. Query the knowledge graph
+results = await cognee.search("What pricing changes were introduced in our Q3 update?")
+print(results)</code></pre>
     </article>
 
     <!-- ==================== ARTICLE 2: SLAB ==================== -->
     <article id="art-slab" class="article-section">
       <h2>Engineering Team Brains: The Slab Wiki Connector</h2>
       <p>
-        Slab is where fast-moving engineering teams document architecture RFCs, system runbooks, postmortems, and team onboarding guides. Without direct integration, AI coding agents and Slack bots have no visibility into why past technical decisions were made.
+        Slab is the internal knowledge hub where engineering organizations publish system architecture RFCs, infrastructure runbooks, incident postmortems, and team onboarding playbooks.
+      </p>
+      <p>
+        Without direct integration into team wikis, AI coding assistants have zero visibility into why architectural tradeoffs were made, which microservices own specific domain logic, or how to triage database failover events.
       </p>
 
       <div class="diagram-card">
-        <span class="diagram-title">Data Pipeline: Slab to Cognee Graph</span>
+        <span class="diagram-title">Data Pipeline: Slab to Cognee Graph Memory</span>
         <div class="flowchart">
           <div class="flow-step">
             <strong>Slab GraphQL API</strong>
-            <span>Posts, Topics & Comments</span>
+            <span>Posts, Topics & Threads</span>
           </div>
           <div class="flow-arrow">➔</div>
           <div class="flow-step">
-            <strong>Markdown Enrichment</strong>
-            <span>Topics & Discussion Threads</span>
+            <strong>Thread Enrichment</strong>
+            <span>Inline RFC Comments</span>
           </div>
           <div class="flow-arrow">➔</div>
           <div class="flow-step">
             <strong>Cognee Cognify</strong>
-            <span>RFC & Decision Mapping</span>
+            <span>Architectural Entity Graph</span>
           </div>
           <div class="flow-arrow">➔</div>
           <div class="flow-step">
             <strong>Team Knowledge Graph</strong>
-            <span>Runbook & RFC Recall</span>
+            <span>Decision & Runbook Recall</span>
           </div>
         </div>
       </div>
 
       <h3>Key Engineering Highlights</h3>
       <ul>
-        <li><strong>GraphQL Connection Pagination:</strong> Transparently navigates Slab's cursor-based <code>posts(first: $first, after: $cursor)</code> connection schema.</li>
-        <li><strong>Discussion Context Capture:</strong> Ingests inline comments and author attributions alongside post content. If an engineer commented on an RFC explaining a security caveat, the AI agent remembers the caveat.</li>
-        <li><strong>Topic Scoping:</strong> Allows syncing an entire company workspace or scoping by specific Topic IDs (e.g. Engineering, Security, Infrastructure).</li>
+        <li><strong>GraphQL Connection Pagination:</strong> Recursively traverses Slab's cursor-based pagination schema (<code>posts(first: 50, after: $cursor)</code>) to ingest arbitrarily large documentation vaults without memory bloat.</li>
+        <li><strong>Inline Comment & Discussion Context:</strong> Ingests inline comments and author attributions alongside post content. If an engineer commented on an RFC explaining an edge-case caveat, the AI agent preserves that context.</li>
+        <li><strong>Topic Scoping:</strong> Supports whole-organization sync or surgical scoping by specific Topic IDs (e.g. Infrastructure, Security, Platform).</li>
       </ul>
 
-<pre><code># Ingesting Slab team documentation:
-import cognee
+<pre><code>import cognee
 from cognee_community_connector_slab import slab_source
 
-source = slab_source(token="SLAB_API_KEY", topic_ids=["engineering_id"])
+# Ingest engineering runbooks and architecture docs
+source = slab_source(
+    token="SLAB_API_KEY",
+    topic_ids=["infra_topic_id", "security_topic_id"],
+    include_comments=True
+)
+
 await cognee.add(source)
 await cognee.cognify()
-answer = await cognee.search("What is our disaster recovery protocol for the payments service?")</code></pre>
+
+# Instant recall over team runbooks
+answer = await cognee.search("What is our disaster recovery failover procedure for Kafka?")</code></pre>
     </article>
 
     <!-- ==================== ARTICLE 3: FRESHDESK ==================== -->
     <article id="art-freshdesk" class="article-section">
       <h2>Support Without Amnesia: The Freshdesk Connector</h2>
       <p>
-        Support teams repeatedly solve variations of the same complex customer issues. Customer support agents and automated triage bots need instant recall of past ticket resolutions and internal knowledge base solutions.
+        Support engineers and AI customer service agents frequently encounter variations of the same complex customer issues. Without shared institutional memory, resolutions are repeatedly rediscovered from scratch.
+      </p>
+      <p>
+        The Freshdesk connector syncs resolved customer tickets, conversation threads, and internal solution articles directly into Cognee's semantic memory.
       </p>
 
       <div class="diagram-card">
-        <span class="diagram-title">Data Pipeline: Freshdesk to Cognee Graph</span>
+        <span class="diagram-title">Data Pipeline: Freshdesk to Cognee Graph Memory</span>
         <div class="flowchart">
           <div class="flow-step">
             <strong>Freshdesk REST v2</strong>
@@ -415,49 +490,186 @@ answer = await cognee.search("What is our disaster recovery protocol for the pay
           <div class="flow-arrow">➔</div>
           <div class="flow-step">
             <strong>Thread Normalizer</strong>
-            <span>Requester & Resolution Steps</span>
+            <span>Multi-turn Conversation Turns</span>
           </div>
           <div class="flow-arrow">➔</div>
           <div class="flow-step">
             <strong>Cognee Cognify</strong>
-            <span>Support Pattern Graph</span>
+            <span>Root-Cause & Solution Graph</span>
           </div>
           <div class="flow-arrow">➔</div>
           <div class="flow-step">
-            <strong>Troubleshooting Recall</strong>
-            <span>Instant Root-Cause Matching</span>
+            <strong>Support Copilot</strong>
+            <span>Zero-Shot Ticket Triage</span>
           </div>
         </div>
       </div>
 
       <h3>Key Engineering Highlights</h3>
       <ul>
-        <li><strong>Unified Support Model:</strong> Concurrently syncs public solution articles (FAQs, troubleshooting manuals) and resolved support ticket threads.</li>
-        <li><strong>Conversational Thread Resolution:</strong> Parses multi-turn exchanges between customers and agents, preserving the exact steps that led to ticket resolution.</li>
-        <li><strong>Polite Rate Limiting:</strong> Enforces exponential backoff and parses <code>Retry-After</code> headers to guarantee stable ingestion on restrictive API plans.</li>
+        <li><strong>Unified Support Model:</strong> Concurrently syncs published solution articles (troubleshooting manuals, FAQs) and resolved customer tickets.</li>
+        <li><strong>Multi-Turn Thread Reconstruction:</strong> Preserves conversational history between customers and agents, highlighting the exact resolution step that closed the ticket.</li>
+        <li><strong>Robust Backoff & Rate Limit Handling:</strong> Inspects HTTP 429 status codes and respects <code>Retry-After</code> headers to ensure uninterrupted syncing on rate-limited tiers.</li>
       </ul>
 
-<pre><code># Ingesting Freshdesk tickets and solutions:
-import cognee
+<pre><code>import cognee
 from cognee_community_connector_freshdesk import freshdesk_source
 
-source = freshdesk_source(api_key="API_KEY", domain="mycompany.freshdesk.com")
+source = freshdesk_source(
+    api_key="FRESHDESK_API_KEY",
+    domain="company.freshdesk.com",
+    include_tickets=True,
+    include_solutions=True,
+    since_date="2026-09-01T00:00:00Z"
+)
+
 await cognee.add(source)
 await cognee.cognify()
-resolution = await cognee.search("How was the Okta SAML 500 error resolved last week?")</code></pre>
+
+# Triage incoming tickets against historical resolutions
+res = await cognee.search("How was the OAuth2 token refresh race condition resolved last month?")</code></pre>
+    </article>
+
+    <!-- ==================== ARTICLE 4: TL;DV ==================== -->
+    <article id="art-tldv" class="article-section">
+      <h2>Turning Spoken Words into Knowledge Graphs: The tl;dv Connector</h2>
+      <p>
+        Remote engineering organizations spend hundreds of hours every month in Zoom and Google Meet calls discussing roadmap decisions, customer discovery feedback, and sprint retrospectives.
+      </p>
+      <p>
+        Once a meeting concludes, that context is effectively lost or locked inside hour-long video recordings. The <code>cognee-community-connector-tldv</code> extracts meeting recordings, speaker-attributed transcripts, and AI-generated summary notes, transforming ephemeral spoken dialogue into searchable semantic graph nodes.
+      </p>
+
+      <div class="diagram-card">
+        <span class="diagram-title">Data Pipeline: tl;dv Meetings to Cognee Graph</span>
+        <div class="flowchart">
+          <div class="flow-step">
+            <strong>tl;dv Public REST API</strong>
+            <span>Meetings, Transcripts & Notes</span>
+          </div>
+          <div class="flow-arrow">➔</div>
+          <div class="flow-step">
+            <strong>Transcript Formatter</strong>
+            <span>Speaker Turns & Takeaways</span>
+          </div>
+          <div class="flow-arrow">➔</div>
+          <div class="flow-step">
+            <strong>Cognee Cognify</strong>
+            <span>Decision & Stakeholder Graph</span>
+          </div>
+          <div class="flow-arrow">➔</div>
+          <div class="flow-step">
+            <strong>Agent Reasoning</strong>
+            <span>Action Item & Decision Recall</span>
+          </div>
+        </div>
+      </div>
+
+      <h3>Technical Architecture</h3>
+      <ul>
+        <li><strong>Multi-Part Document Synthesis:</strong> Combines meeting metadata (organizer, date, duration), executive summaries, action item checklists, and timestamped speaker dialogue into structured Markdown.</li>
+        <li><strong>Incremental Time-Window Sync:</strong> The connector accepts a <code>since_date</code> ISO timestamp, querying only recordings created or modified since the last pipeline run.</li>
+        <li><strong>Speaker Attribution in Entity Graph:</strong> Transcripts tag individual speakers (e.g. <code>[04:12] Alice:</code>), allowing Cognee's entity extraction to correlate decisions with specific stakeholders.</li>
+      </ul>
+
+<pre><code>import cognee
+from cognee_community_connector_tldv import tldv_source
+
+# Ingest recent sprint planning and customer discovery calls
+source = tldv_source(
+    api_key="TLDV_API_KEY",
+    since_date="2026-10-01T00:00:00Z",
+    include_transcripts=True,
+    include_notes=True
+)
+
+await cognee.add(source)
+await cognee.cognify()
+
+# Ask your AI agent what happened in meetings
+summary = await cognee.search("What action items were assigned to Bob during Monday's sprint planning?")
+print(summary)</code></pre>
+    </article>
+
+    <!-- ==================== ARTICLE 5: FALKORDB BUGFIX ==================== -->
+    <article id="art-falkordb" class="article-section">
+      <h2>Under the Hood: Hunting Down the FalkorDB Visualization Bug</h2>
+      <p>
+        While contributing data connectors to Cognee Community, we discovered a critical bug in <code>cognee-community-hybrid-adapter-falkor</code> (<a href="https://github.com/topoteretes/cognee-community/issues/262" target="_blank" rel="noopener">Issue #262</a>): <strong>every graph dataset containing edges crashed on visualization with <code>KeyError: 'source_node_id'</code></strong>.
+      </p>
+
+      <div class="callout amber">
+        <strong>The Blast Radius:</strong> Whenever a user called <code>GET /v1/datasets/{id}/graph</code> (the core endpoint for Cognee's interactive knowledge graph explorer) or <code>get_filtered_graph_data([])</code>, the server returned an uncaught HTTP 500 error on any graph with at least one relationship.
+      </div>
+
+      <h3>Root Cause Analysis</h3>
+      <p>
+        In FalkorDB Cypher, edge insertions performed by <code>add_edges()</code> execute the following query:
+      </p>
+<pre><code>UNWIND $items AS e
+MERGE (source {id: e.source_id})
+MERGE (target {id: e.target_id})
+MERGE (source)-[r:{rel_type}]->(target)
+SET r += e.props, r.updated_at = timestamp()</code></pre>
+      <p>
+        Notice that <code>e.props</code> only contains custom user attributes and <code>relationship_name</code>. It <strong>never</strong> writes <code>source_node_id</code> or <code>target_node_id</code> to the edge property map.
+      </p>
+      <p>
+        However, <code>FalkorDBAdapter.get_graph_data()</code> queried:
+      </p>
+<pre><code>query = """
+MATCH (n)-[r]->(m)
+RETURN ID(n) AS source, ID(m) AS target, TYPE(r) AS type, properties(r) AS properties
+"""
+result = await self.query(query)
+edges = [
+    (
+        record[3]["source_node_id"],  # <- CRASH: KeyError!
+        record[3]["target_node_id"],  # <- CRASH: KeyError!
+        record[2],
+        record[3],
+    )
+    for record in result.result_set
+]</code></pre>
+      <p>
+        Because <code>properties(r)</code> (index 3) never contained those keys, the list comprehension failed immediately. In addition, <code>ID(n)</code> returned FalkorDB's internal integer ID, which contradicted the string UUIDs stored in Cognee's node records!
+      </p>
+
+      <h3>The Fix</h3>
+      <p>
+        We refactored the Cypher projection to bind the endpoint nodes' business identifiers directly:
+      </p>
+<pre><code>query = """
+MATCH (n)-[r]->(m)
+RETURN n.id AS source, m.id AS target, TYPE(r) AS type, properties(r) AS properties
+"""
+result = await self.query(query)
+edges = [
+    (
+        str(record[0]) if record[0] is not None else record[3].get("source_node_id", ""),
+        str(record[1]) if record[1] is not None else record[3].get("target_node_id", ""),
+        record[2],
+        record[3],
+    )
+    for record in result.result_set
+]</code></pre>
+
+      <div class="callout green">
+        <strong>Verification & Conformance:</strong> We authored unit regression tests in <code>packages/hybrid/falkordb/tests/unit/test_get_graph_data.py</code> covering UUID resolution and legacy fallback. All unit tests and Ruff linter checks pass with zero errors.
+      </div>
     </article>
   </div>
 
   <footer class="site-footer">
-    <p>Written by <a href="https://github.com/soujasK">Soujas K</a> for Mergetober 2026 · WeMakeDevs × Cognee</p>
+    <p>Authored by <a href="https://github.com/soujasK">Soujas K</a> for Mergetober 2026 · WeMakeDevs × Cognee</p>
   </footer>
 
   <script>
-    function switchArticle(key) {
+    function switchArticle(key, btn) {
       document.querySelectorAll('.article-section').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
       document.getElementById('art-' + key).classList.add('active');
-      event.target.classList.add('active');
+      btn.classList.add('active');
     }
   </script>
 </body>
