@@ -3,17 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Giving AI Agents a CMS Memory: Building the Webflow Connector for Cognee | Soujas K</title>
-  <meta name="description" content="How to connect Webflow CMS to Cognee to give AI agents persistent knowledge graph memory with automatic forget-on-delete.">
-  <meta property="og:title" content="Giving AI Agents a CMS Memory: Building the Webflow Connector for Cognee">
-  <meta property="og:description" content="Deep dive into building the Webflow CMS connector for Cognee in Mergetober 2026.">
-  <meta property="og:type" content="article">
+  <title>Engineering Persistent AI Memory: Mergetober Connector Deep-Dives | Soujas K</title>
+  <meta name="description" content="Technical deep-dives into building production data-source connectors for Cognee: Webflow, Slab, and Freshdesk for Mergetober 2026.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #0b0f17;
+      --bg: #0a0d14;
       --card-bg: #111827;
       --card-border: #1f293d;
       --text-main: #f3f4f6;
@@ -39,17 +36,17 @@
       -webkit-font-smoothing: antialiased;
     }
     header.site-header {
-      max-width: 840px;
+      max-width: 900px;
       margin: 0 auto;
       padding: 2.5rem 0 1.5rem;
-      border-b: 1px solid var(--card-border);
+      border-bottom: 1px solid var(--card-border);
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
     .brand {
       font-weight: 700;
-      font-size: 1.1rem;
+      font-size: 1.15rem;
       color: var(--text-main);
       text-decoration: none;
       display: flex;
@@ -69,19 +66,41 @@
     .nav-links a:hover {
       color: var(--text-main);
     }
-    article {
-      max-width: 840px;
+    .container {
+      max-width: 900px;
       margin: 2.5rem auto 0;
     }
-    .post-meta {
+    .hero-banner {
+      background: linear-gradient(135deg, rgba(139, 92, 246, 0.12), rgba(59, 130, 246, 0.05));
+      border: 1px solid var(--card-border);
+      border-radius: 1rem;
+      padding: 2.5rem 2rem;
+      margin-bottom: 3rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-banner h1 {
+      font-size: 2.4rem;
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 1rem;
+      letter-spacing: -0.025em;
+      background: linear-gradient(135deg, #ffffff 40%, #c4b5fd 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero-banner p {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      max-width: 720px;
+      margin-bottom: 1.5rem;
+    }
+    .meta-tags {
       display: flex;
       flex-wrap: wrap;
-      gap: 0.75rem;
-      align-items: center;
-      margin-bottom: 1.25rem;
+      gap: 0.5rem;
     }
     .badge {
-      display: inline-block;
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.75rem;
       padding: 0.25rem 0.65rem;
@@ -92,76 +111,54 @@
       text-transform: uppercase;
       letter-spacing: 0.05em;
     }
-    .reading-time {
-      font-size: 0.85rem;
-      color: var(--text-muted);
-    }
-    h1.post-title {
-      font-size: 2.5rem;
-      font-weight: 800;
-      line-height: 1.2;
-      margin-bottom: 1.5rem;
-      letter-spacing: -0.025em;
-      background: linear-gradient(135deg, #ffffff 40%, #c4b5fd 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    .author-card {
+    .tab-bar {
       display: flex;
-      align-items: center;
-      gap: 1rem;
-      padding: 1rem;
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 0.75rem;
+      gap: 0.5rem;
+      border-bottom: 1px solid var(--card-border);
       margin-bottom: 2.5rem;
+      overflow-x: auto;
     }
-    .avatar {
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #6366f1, #a855f7);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      color: #fff;
+    .tab-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      padding: 0.75rem 1.25rem;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
     }
-    .author-info h4 {
-      font-size: 0.95rem;
+    .tab-btn:hover {
       color: var(--text-main);
     }
-    .author-info p {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      margin: 0;
+    .tab-btn.active {
+      color: var(--accent-light);
+      border-bottom-color: var(--accent-light);
+      font-weight: 600;
     }
-    .lead-paragraph {
-      font-size: 1.15rem;
-      color: #e5e7eb;
-      line-height: 1.8;
-      margin-bottom: 2rem;
+    .article-section {
+      display: none;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+    .article-section.active {
+      display: block;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
     }
     h2 {
       font-size: 1.6rem;
       font-weight: 700;
-      margin: 2.5rem 0 1rem;
+      margin: 2rem 0 1rem;
       color: #ffffff;
       letter-spacing: -0.02em;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    h2::before {
-      content: "#";
-      color: var(--accent-light);
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 1.2rem;
     }
     h3 {
       font-size: 1.2rem;
       font-weight: 600;
-      margin: 1.75rem 0 0.75rem;
+      margin: 1.5rem 0 0.75rem;
       color: #f3f4f6;
     }
     p {
@@ -195,24 +192,15 @@
       line-height: 1.65;
       color: #e2e8f0;
     }
-    .code-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: #111827;
-      padding: 0.5rem 1rem;
-      border: 1px solid var(--card-border);
-      border-bottom: none;
-      border-top-left-radius: 0.75rem;
-      border-top-right-radius: 0.75rem;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.75rem;
-      color: var(--text-muted);
+    .callout {
+      border-left: 3px solid var(--accent);
+      background: rgba(139, 92, 246, 0.08);
+      padding: 1rem 1.25rem;
+      border-radius: 0 0.5rem 0.5rem 0;
+      margin: 1.5rem 0;
     }
-    .code-header + pre {
-      margin-top: 0;
-      border-top-left-radius: 0;
-      border-top-right-radius: 0;
+    .callout strong {
+      color: #fff;
     }
     .diagram-card {
       background: var(--card-bg);
@@ -263,18 +251,8 @@
       font-weight: bold;
       text-align: center;
     }
-    .callout {
-      border-left: 3px solid var(--accent);
-      background: rgba(139, 92, 246, 0.08);
-      padding: 1rem 1.25rem;
-      border-radius: 0 0.5rem 0.5rem 0;
-      margin: 1.5rem 0;
-    }
-    .callout strong {
-      color: #fff;
-    }
     footer.site-footer {
-      max-width: 840px;
+      max-width: 900px;
       margin: 4rem auto 0;
       padding-top: 2rem;
       border-top: 1px solid var(--card-border);
@@ -285,9 +263,6 @@
     footer.site-footer a {
       color: var(--accent-light);
       text-decoration: none;
-    }
-    footer.site-footer a:hover {
-      text-decoration: underline;
     }
   </style>
 </head>
@@ -301,163 +276,189 @@
     </nav>
   </header>
 
-  <article>
-    <div class="post-meta">
-      <span class="badge">Mergetober 2026</span>
-      <span class="badge">Open Source</span>
-      <span class="badge">AI Memory</span>
-      <span class="reading-time">5 min read · October 2026</span>
-    </div>
-
-    <h1 class="post-title">Giving AI Agents a CMS Memory: Building the Webflow Connector for Cognee</h1>
-
-    <div class="author-card">
-      <div class="avatar">SK</div>
-      <div class="author-info">
-        <h4>Soujas K</h4>
-        <p>Software Engineer · Contributor to Cognee & Mergetober 2026</p>
+  <div class="container">
+    <div class="hero-banner">
+      <h1>Giving AI Agents Enterprise Memory</h1>
+      <p>
+        Building production-grade data-source connectors for Cognee: turning Webflow CMS, Slab wikis, and Freshdesk support into persistent, self-updating knowledge graph memory.
+      </p>
+      <div class="meta-tags">
+        <span class="badge">Mergetober 2026</span>
+        <span class="badge">Cognee Community</span>
+        <span class="badge">Knowledge Graphs</span>
+        <span class="badge">Author: Soujas K</span>
       </div>
     </div>
 
-    <p class="lead-paragraph">
-      Every time an AI agent receives a prompt, it starts with an empty context. While traditional retrieval-augmented generation (RAG) using vector search retrieves similar paragraphs, it struggles with structural entity relationships — who wrote which feature, how dependencies link, and when updates were published. Here is how I built the <strong>Webflow CMS data-source connector</strong> for <strong>Cognee</strong> during <strong>Mergetober</strong>, giving AI agents long-term, self-updating graph memory.
-    </p>
+    <!-- Article Navigation Tabs -->
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="switchArticle('webflow')">1. Webflow CMS Connector</button>
+      <button class="tab-btn" onclick="switchArticle('slab')">2. Slab Wiki Connector</button>
+      <button class="tab-btn" onclick="switchArticle('freshdesk')">3. Freshdesk Support Connector</button>
+    </div>
 
-    <h2>The Problem: The Fragility of Scraping</h2>
-    <p>
-      Webflow powers modern landing pages, technical documentation hubs, and company blogs. Historically, AI systems trying to digest Webflow content rely on web crawlers. This introduces serious flaws:
-    </p>
-    <ul>
-      <li><strong>Noisy Markup:</strong> Navigation bars, tracking pixels, cookies, and footer links contaminate the LLM context window.</li>
-      <li><strong>Unstable Content Hashes:</strong> Modifying a single CSS class causes scrapers to detect a brand-new page, bloating the vector store with duplicate nodes.</li>
-      <li><strong>No Deletion Propagating:</strong> When a draft is unpublished or a blog post is removed, standard vector databases retain the outdated information indefinitely.</li>
-    </ul>
+    <!-- ==================== ARTICLE 1: WEBFLOW ==================== -->
+    <article id="art-webflow" class="article-section active">
+      <h2>Giving AI Agents a CMS Memory: The Webflow Connector</h2>
+      <p>
+        Webflow powers millions of marketing landing pages, technical documentation sites, and engineering blogs. When organizations build AI agents (such as automated support assistants or research copilots), they usually attempt to ingest Webflow content using web crawlers.
+      </p>
+      <p>
+        Crawling introduces critical failure modes: HTML boilerplate contaminates the context window, CSS class modifications churn content hashes, and deleted articles remain in vector databases forever.
+      </p>
 
-    <div class="diagram-card">
-      <span class="diagram-title">System Architecture: From Webflow CMS to Graph Memory</span>
-      <div class="flowchart">
-        <div class="flow-step">
-          <strong>1. Webflow Data API v2</strong>
-          <span>CMS Collection Items (JSON)</span>
-        </div>
-        <div class="flow-arrow">➔</div>
-        <div class="flow-step">
-          <strong>2. Webflow Connector</strong>
-          <span>dlt replace + Markdown render</span>
-        </div>
-        <div class="flow-arrow">➔</div>
-        <div class="flow-step">
-          <strong>3. Cognee Cognify</strong>
-          <span>Entity & relation extraction</span>
-        </div>
-        <div class="flow-arrow">➔</div>
-        <div class="flow-step">
-          <strong>4. Graph & Vector Stores</strong>
-          <span>Autonomous AI memory recall</span>
+      <div class="diagram-card">
+        <span class="diagram-title">Data Pipeline: Webflow to Cognee Graph</span>
+        <div class="flowchart">
+          <div class="flow-step">
+            <strong>Webflow API v2</strong>
+            <span>Collections & Items JSON</span>
+          </div>
+          <div class="flow-arrow">➔</div>
+          <div class="flow-step">
+            <strong>dlt replace Engine</strong>
+            <span>Clean Markdown Rendering</span>
+          </div>
+          <div class="flow-arrow">➔</div>
+          <div class="flow-step">
+            <strong>Cognee Cognify</strong>
+            <span>Entity & Relation Extraction</span>
+          </div>
+          <div class="flow-arrow">➔</div>
+          <div class="flow-step">
+            <strong>Graph Memory</strong>
+            <span>Autonomous Agent Recall</span>
+          </div>
         </div>
       </div>
-    </div>
 
-    <h2>Engineering the Webflow Connector</h2>
-    <p>
-      The connector is packaged under <code>packages/connector/webflow/</code> in the <a href="https://github.com/topoteretes/cognee-community" style="color: var(--accent-light);">cognee-community</a> repository, adhering to Cognee's modern document-mode ingestion pattern.
-    </p>
+      <h3>Architectural Design</h3>
+      <ul>
+        <li><strong>Document-Mode Routing:</strong> The source declares <code>DOCUMENT_SOURCE_ATTR = "webflow"</code>, ensuring records flow through <code>cognify</code> natural language entity extraction rather than rigid tabular database rows.</li>
+        <li><strong>Markdown Transformation:</strong> Rich HTML fields are transformed into structured markdown headers, bullet lists, and code blocks while preserving canonical URLs and slugs.</li>
+        <li><strong>Automatic Forget-on-Delete:</strong> Built with <code>write_disposition="replace"</code>. When an article is unpublished or removed upstream, it falls out of staging and Cognee's <code>orphan_cleanup</code> automatically purges it from the graph and vector stores.</li>
+      </ul>
 
-    <h3>1. Opting Into Document Mode</h3>
-    <p>
-      Unlike tabular SQL sources where data rows map to relational columns, Webflow CMS entries are rich editorial documents. We declare document mode via:
-    </p>
-
-    <div class="code-header"><span>python</span><span>cognee_community_connector_webflow/webflow.py</span></div>
-<pre><code>from cognee.tasks.ingestion.dlt_utils import DOCUMENT_SOURCE_ATTR
-
-source = _webflow()
-# Opts into Cognee's document ingestion pipeline:
-setattr(source, DOCUMENT_SOURCE_ATTR, "webflow")
-return source</code></pre>
-
-    <p>
-      This informs Cognee's engine that rows should be routed through <code>cognify</code> (LLM entity and relationship discovery) rather than strict relational schemas.
-    </p>
-
-    <h3>2. Clean Markdown Formatting</h3>
-    <p>
-      Webflow CMS delivers rich text embedded in HTML. The connector uses an intelligent extraction pipeline that preserves headings, bullet lists, and code blocks while stripping layout noise. Title, canonical URL, and slug are kept stable to prevent content-hash churning:
-    </p>
-
-    <div class="code-header"><span>python</span><span>Field Transformation</span></div>
-<pre><code>def _item_to_row(item: dict, collection_id: str) -> dict:
-    field_data = item.get("fieldData") or {}
-    item_id = item.get("id") or item.get("_id", "")
-    title = field_data.get("name") or field_data.get("title") or f"Item {item_id}"
-    slug = field_data.get("slug", "")
-
-    return {
-        "id": item_id,
-        "url": f"webflow://collection/{collection_id}/item/{slug or item_id}",
-        "title": str(title),
-        "content": _render_fields_to_markdown(title, field_data),
-    }</code></pre>
-
-    <h3>3. Automated Forget-on-Delete</h3>
-    <div class="callout">
-      <strong>Why replace disposition matters:</strong> Because Webflow's API has no separate deletion feed, the connector runs a full snapshot with <code>write_disposition="replace"</code>. If an article is deleted or unpublished in Webflow, it is absent from the snapshot. Cognee's built-in <code>orphan_cleanup</code> detects the missing item and purges it from the graph and vector stores automatically.
-    </div>
-
-    <h2>How to Use It in 4 Lines of Code</h2>
-    <p>
-      Once installed via <code>pip install cognee-community-connector-webflow</code>, syncing your Webflow CMS into an AI agent's memory takes only four lines:
-    </p>
-
-    <div class="code-header"><span>python</span><span>sync_webflow.py</span></div>
-<pre><code>import asyncio
-import os
+<pre><code># Usage in 4 lines:
 import cognee
 from cognee_community_connector_webflow import webflow_source
 
-async def main():
-    # 1. Initialize connector with site credentials
-    source = webflow_source(
-        token=os.environ.get("WEBFLOW_API_TOKEN"),
-        site_id=os.environ.get("WEBFLOW_SITE_ID"),
-    )
+source = webflow_source(token="API_TOKEN", site_id="SITE_ID")
+await cognee.add(source)
+await cognee.cognify()
+result = await cognee.search("What announcements were made in our latest product release?")</code></pre>
+    </article>
 
-    # 2. Add source to Cognee staging
-    await cognee.add(source)
+    <!-- ==================== ARTICLE 2: SLAB ==================== -->
+    <article id="art-slab" class="article-section">
+      <h2>Engineering Team Brains: The Slab Wiki Connector</h2>
+      <p>
+        Slab is where fast-moving engineering teams document architecture RFCs, system runbooks, postmortems, and team onboarding guides. Without direct integration, AI coding agents and Slack bots have no visibility into why past technical decisions were made.
+      </p>
 
-    # 3. Cognify: extract knowledge graph & embeddings
-    await cognee.cognify()
+      <div class="diagram-card">
+        <span class="diagram-title">Data Pipeline: Slab to Cognee Graph</span>
+        <div class="flowchart">
+          <div class="flow-step">
+            <strong>Slab GraphQL API</strong>
+            <span>Posts, Topics & Comments</span>
+          </div>
+          <div class="flow-arrow">➔</div>
+          <div class="flow-step">
+            <strong>Markdown Enrichment</strong>
+            <span>Topics & Discussion Threads</span>
+          </div>
+          <div class="flow-arrow">➔</div>
+          <div class="flow-step">
+            <strong>Cognee Cognify</strong>
+            <span>RFC & Decision Mapping</span>
+          </div>
+          <div class="flow-arrow">➔</div>
+          <div class="flow-step">
+            <strong>Team Knowledge Graph</strong>
+            <span>Runbook & RFC Recall</span>
+          </div>
+        </div>
+      </div>
 
-    # 4. Search and recall information
-    results = await cognee.search("What announcements were made in our latest product release?")
-    print(results)
+      <h3>Key Engineering Highlights</h3>
+      <ul>
+        <li><strong>GraphQL Connection Pagination:</strong> Transparently navigates Slab's cursor-based <code>posts(first: $first, after: $cursor)</code> connection schema.</li>
+        <li><strong>Discussion Context Capture:</strong> Ingests inline comments and author attributions alongside post content. If an engineer commented on an RFC explaining a security caveat, the AI agent remembers the caveat.</li>
+        <li><strong>Topic Scoping:</strong> Allows syncing an entire company workspace or scoping by specific Topic IDs (e.g. Engineering, Security, Infrastructure).</li>
+      </ul>
 
-if __name__ == "__main__":
-    asyncio.run(main())</code></pre>
+<pre><code># Ingesting Slab team documentation:
+import cognee
+from cognee_community_connector_slab import slab_source
 
-    <h2>Testing & Reliability</h2>
-    <p>
-      To ensure enterprise reliability, the connector includes a full unit test suite under <code>packages/connector/webflow/tests/test_webflow.py</code> running against in-memory mock responses:
-    </p>
-    <ul>
-      <li>Pagination handling across multi-page collection listings</li>
-      <li>Draft and archived item filtering</li>
-      <li>Exponential backoff and <code>Retry-After</code> parsing for HTTP 429 rate limits</li>
-      <li>Snapshot replacement and deletion handling</li>
-    </ul>
+source = slab_source(token="SLAB_API_KEY", topic_ids=["engineering_id"])
+await cognee.add(source)
+await cognee.cognify()
+answer = await cognee.search("What is our disaster recovery protocol for the payments service?")</code></pre>
+    </article>
 
-    <div class="code-header"><span>bash</span><span>Test Execution</span></div>
-<pre><code>$ python -m pytest packages/connector/webflow/tests
-============================== 6 passed in 5.27s ==============================</code></pre>
+    <!-- ==================== ARTICLE 3: FRESHDESK ==================== -->
+    <article id="art-freshdesk" class="article-section">
+      <h2>Support Without Amnesia: The Freshdesk Connector</h2>
+      <p>
+        Support teams repeatedly solve variations of the same complex customer issues. Customer support agents and automated triage bots need instant recall of past ticket resolutions and internal knowledge base solutions.
+      </p>
 
-    <h2>Conclusion</h2>
-    <p>
-      Building this connector for <strong>Mergetober 2026</strong> demonstrates the power of composable open source tooling: connecting real-world content platforms like Webflow directly into Cognee's cognitive architecture. Now, AI agents don't just answer questions from static manuals — they have an up-to-date, structured memory of their entire web presence.
-    </p>
-  </article>
+      <div class="diagram-card">
+        <span class="diagram-title">Data Pipeline: Freshdesk to Cognee Graph</span>
+        <div class="flowchart">
+          <div class="flow-step">
+            <strong>Freshdesk REST v2</strong>
+            <span>Tickets, Threads & Solutions</span>
+          </div>
+          <div class="flow-arrow">➔</div>
+          <div class="flow-step">
+            <strong>Thread Normalizer</strong>
+            <span>Requester & Resolution Steps</span>
+          </div>
+          <div class="flow-arrow">➔</div>
+          <div class="flow-step">
+            <strong>Cognee Cognify</strong>
+            <span>Support Pattern Graph</span>
+          </div>
+          <div class="flow-arrow">➔</div>
+          <div class="flow-step">
+            <strong>Troubleshooting Recall</strong>
+            <span>Instant Root-Cause Matching</span>
+          </div>
+        </div>
+      </div>
+
+      <h3>Key Engineering Highlights</h3>
+      <ul>
+        <li><strong>Unified Support Model:</strong> Concurrently syncs public solution articles (FAQs, troubleshooting manuals) and resolved support ticket threads.</li>
+        <li><strong>Conversational Thread Resolution:</strong> Parses multi-turn exchanges between customers and agents, preserving the exact steps that led to ticket resolution.</li>
+        <li><strong>Polite Rate Limiting:</strong> Enforces exponential backoff and parses <code>Retry-After</code> headers to guarantee stable ingestion on restrictive API plans.</li>
+      </ul>
+
+<pre><code># Ingesting Freshdesk tickets and solutions:
+import cognee
+from cognee_community_connector_freshdesk import freshdesk_source
+
+source = freshdesk_source(api_key="API_KEY", domain="mycompany.freshdesk.com")
+await cognee.add(source)
+await cognee.cognify()
+resolution = await cognee.search("How was the Okta SAML 500 error resolved last week?")</code></pre>
+    </article>
+  </div>
 
   <footer class="site-footer">
     <p>Written by <a href="https://github.com/soujasK">Soujas K</a> for Mergetober 2026 · WeMakeDevs × Cognee</p>
   </footer>
+
+  <script>
+    function switchArticle(key) {
+      document.querySelectorAll('.article-section').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+      document.getElementById('art-' + key).classList.add('active');
+      event.target.classList.add('active');
+    }
+  </script>
 </body>
 </html>
