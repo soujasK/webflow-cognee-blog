@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Support Without Amnesia: The Freshdesk Connector for Cognee | Soujas K</title>
+  <meta name="description" content="Technical deep-dive on integrating Freshdesk support tickets and solution articles into Cognee's persistent graph memory for Mergetober 2026.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: #111827;
+      --card-border: #1f293d;
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --accent: #8b5cf6;
+      --accent-light: #a78bfa;
+      --code-bg: #050811;
+      --green: #10b981;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg);
+      color: var(--text-main);
+      font-family: 'Inter', sans-serif;
+      line-height: 1.75;
+      padding: 0 1.25rem 5rem;
+    }
+    header.site-header {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 2.5rem 0 1.5rem;
+      border-bottom: 1px solid var(--card-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .brand { font-weight: 800; font-size: 1.2rem; color: var(--text-main); text-decoration: none; }
+    .brand span { color: var(--accent-light); }
+    .nav-links a { color: var(--text-muted); text-decoration: none; margin-left: 1.5rem; font-size: 0.9rem; }
+    .container { max-width: 860px; margin: 2.5rem auto 0; }
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 1rem;
+      background: linear-gradient(135deg, #ffffff 30%, #c4b5fd 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .meta-bar {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      margin-bottom: 2rem;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+    .badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      padding: 0.25rem 0.65rem;
+      border-radius: 9999px;
+      background: rgba(139, 92, 246, 0.15);
+      color: var(--accent-light);
+      border: 1px solid rgba(139, 92, 246, 0.3);
+    }
+    h2 { font-size: 1.6rem; margin: 2rem 0 1rem; color: #fff; }
+    h3 { font-size: 1.2rem; margin: 1.5rem 0 0.75rem; color: #f3f4f6; }
+    p { margin-bottom: 1.25rem; color: #d1d5db; }
+    ul { margin: 1rem 0 1.5rem 1.75rem; color: #d1d5db; }
+    li { margin-bottom: 0.5rem; }
+    code:not(pre code) {
+      font-family: 'JetBrains Mono', monospace;
+      background: #1e293b;
+      color: #cbd5e1;
+      padding: 0.15rem 0.4rem;
+      border-radius: 0.25rem;
+    }
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 0.75rem;
+      padding: 1.25rem;
+      overflow-x: auto;
+      margin: 1.5rem 0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.88rem;
+      color: #e2e8f0;
+    }
+    .diagram-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      margin: 2rem 0;
+    }
+    .diagram-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      color: var(--accent-light);
+      margin-bottom: 1rem;
+      display: block;
+      text-transform: uppercase;
+    }
+    .flowchart { display: flex; flex-direction: column; gap: 0.75rem; }
+    @media (min-width: 640px) {
+      .flowchart { flex-direction: row; align-items: center; justify-content: space-between; }
+    }
+    .flow-step {
+      background: #0b1120;
+      border: 1px solid #1e293b;
+      padding: 0.85rem 1rem;
+      border-radius: 0.5rem;
+      flex: 1;
+      text-align: center;
+    }
+    .flow-step strong { display: block; font-size: 0.88rem; }
+    .flow-step span { font-size: 0.75rem; color: var(--text-muted); }
+    .flow-arrow { color: var(--accent-light); font-weight: bold; text-align: center; }
+    .callout {
+      border-left: 3px solid var(--accent);
+      background: rgba(139, 92, 246, 0.08);
+      padding: 1.15rem 1.35rem;
+      border-radius: 0 0.5rem 0.5rem 0;
+      margin: 1.75rem 0;
+    }
+    footer {
+      max-width: 860px;
+      margin: 4rem auto 0;
+      padding-top: 2rem;
+      border-top: 1px solid var(--card-border);
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+    footer a { color: var(--accent-light); text-decoration: none; }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <a href="index.html" class="brand">Soujas<span>.dev</span></a>
+    <nav class="nav-links">
+      <a href="index.html">← All Connectors</a>
+      <a href="https://github.com/soujasK" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://github.com/topoteretes/cognee" target="_blank" rel="noopener">Cognee</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <h1>Support Without Amnesia: The Freshdesk Connector</h1>
+    <div class="meta-bar">
+      <span>By Soujas K</span>
+      <span>•</span>
+      <span>October 2026</span>
+      <span>•</span>
+      <span class="badge">Mergetober 2026</span>
+      <span class="badge">Freshdesk REST v2</span>
+      <span class="badge">Cognee Community</span>
+    </div>
+
+    <p>
+      Support engineers and AI customer service agents frequently encounter variations of the same complex customer issues. Without shared institutional memory, resolutions are repeatedly rediscovered from scratch.
+    </p>
+    <p>
+      The Freshdesk connector syncs resolved customer tickets, conversation threads, and internal solution articles directly into Cognee's semantic memory.
+    </p>
+
+    <div class="diagram-card">
+      <span class="diagram-title">Data Pipeline: Freshdesk to Cognee Graph Memory</span>
+      <div class="flowchart">
+        <div class="flow-step">
+          <strong>Freshdesk REST v2</strong>
+          <span>Tickets, Threads & Solutions</span>
+        </div>
+        <div class="flow-arrow">➔</div>
+        <div class="flow-step">
+          <strong>Thread Normalizer</strong>
+          <span>Multi-turn Conversation Turns</span>
+        </div>
+        <div class="flow-arrow">➔</div>
+        <div class="flow-step">
+          <strong>Cognee Cognify</strong>
+          <span>Root-Cause & Solution Graph</span>
+        </div>
+        <div class="flow-arrow">➔</div>
+        <div class="flow-step">
+          <strong>Support Copilot</strong>
+          <span>Zero-Shot Ticket Triage</span>
+        </div>
+      </div>
+    </div>
+
+    <h2>Key Engineering Highlights</h2>
+    <ul>
+      <li><strong>Unified Support Model:</strong> Concurrently syncs published solution articles (troubleshooting manuals, FAQs) and resolved customer tickets.</li>
+      <li><strong>Multi-Turn Thread Reconstruction:</strong> Preserves conversational history between customers and agents, highlighting the exact resolution step that closed the ticket.</li>
+      <li><strong>Robust Backoff & Rate Limit Handling:</strong> Inspects HTTP 429 status codes and respects <code>Retry-After</code> headers to ensure uninterrupted syncing on rate-limited tiers.</li>
+    </ul>
+
+    <h2>Production Usage</h2>
+<pre><code>import cognee
+from cognee_community_connector_freshdesk import freshdesk_source
+
+source = freshdesk_source(
+    api_key="FRESHDESK_API_KEY",
+    domain="company.freshdesk.com",
+    include_tickets=True,
+    include_solutions=True,
+    since_date="2026-09-01T00:00:00Z"
+)
+
+await cognee.add(source)
+await cognee.cognify()
+
+# Triage incoming tickets against historical resolutions
+res = await cognee.search("How was the OAuth2 token refresh race condition resolved last month?")
+print(res)</code></pre>
+
+    <div class="callout">
+      <strong>Verification & Quality:</strong> The connector package includes unit tests for conversation thread reconstruction, rate limit backoffs, and DLT resource emission with 100% test pass rate.
+    </div>
+  </main>
+
+  <footer>
+    <p>Authored by <a href="https://github.com/soujasK">Soujas K</a> for Mergetober 2026 · WeMakeDevs × Cognee</p>
+  </footer>
+</body>
+</html>

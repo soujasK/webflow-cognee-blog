@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Under the Hood: Hunting Down the FalkorDB Visualization Bug | Soujas K</title>
+  <meta name="description" content="Engineering retrospective on diagnosing and resolving KeyError: 'source_node_id' in FalkorDBAdapter.get_graph_data for Cognee.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: #111827;
+      --card-border: #1f293d;
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --accent: #8b5cf6;
+      --accent-light: #a78bfa;
+      --code-bg: #050811;
+      --amber: #f59e0b;
+      --green: #10b981;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg);
+      color: var(--text-main);
+      font-family: 'Inter', sans-serif;
+      line-height: 1.75;
+      padding: 0 1.25rem 5rem;
+    }
+    header.site-header {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 2.5rem 0 1.5rem;
+      border-bottom: 1px solid var(--card-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .brand { font-weight: 800; font-size: 1.2rem; color: var(--text-main); text-decoration: none; }
+    .brand span { color: var(--accent-light); }
+    .nav-links a { color: var(--text-muted); text-decoration: none; margin-left: 1.5rem; font-size: 0.9rem; }
+    .container { max-width: 860px; margin: 2.5rem auto 0; }
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 1rem;
+      background: linear-gradient(135deg, #ffffff 30%, #c4b5fd 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .meta-bar {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      margin-bottom: 2rem;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+    .badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      padding: 0.25rem 0.65rem;
+      border-radius: 9999px;
+      background: rgba(139, 92, 246, 0.15);
+      color: var(--accent-light);
+      border: 1px solid rgba(139, 92, 246, 0.3);
+    }
+    h2 { font-size: 1.6rem; margin: 2rem 0 1rem; color: #fff; }
+    h3 { font-size: 1.2rem; margin: 1.5rem 0 0.75rem; color: #f3f4f6; }
+    p { margin-bottom: 1.25rem; color: #d1d5db; }
+    ul { margin: 1rem 0 1.5rem 1.75rem; color: #d1d5db; }
+    li { margin-bottom: 0.5rem; }
+    code:not(pre code) {
+      font-family: 'JetBrains Mono', monospace;
+      background: #1e293b;
+      color: #cbd5e1;
+      padding: 0.15rem 0.4rem;
+      border-radius: 0.25rem;
+    }
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 0.75rem;
+      padding: 1.25rem;
+      overflow-x: auto;
+      margin: 1.5rem 0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.88rem;
+      color: #e2e8f0;
+    }
+    .callout {
+      border-left: 3px solid var(--accent);
+      background: rgba(139, 92, 246, 0.08);
+      padding: 1.15rem 1.35rem;
+      border-radius: 0 0.5rem 0.5rem 0;
+      margin: 1.75rem 0;
+    }
+    .callout.amber { border-left-color: var(--amber); background: rgba(245, 158, 11, 0.08); }
+    .callout.green { border-left-color: var(--green); background: rgba(16, 185, 129, 0.08); }
+    footer {
+      max-width: 860px;
+      margin: 4rem auto 0;
+      padding-top: 2rem;
+      border-top: 1px solid var(--card-border);
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+    footer a { color: var(--accent-light); text-decoration: none; }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <a href="index.html" class="brand">Soujas<span>.dev</span></a>
+    <nav class="nav-links">
+      <a href="index.html">← All Connectors</a>
+      <a href="https://github.com/soujasK" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://github.com/topoteretes/cognee" target="_blank" rel="noopener">Cognee</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <h1>Under the Hood: Hunting Down the FalkorDB Visualization Bug</h1>
+    <div class="meta-bar">
+      <span>By Soujas K</span>
+      <span>•</span>
+      <span>October 2026</span>
+      <span>•</span>
+      <span class="badge">Mergetober 2026</span>
+      <span class="badge">Hybrid Adapter</span>
+      <span class="badge">Issue #262</span>
+    </div>
+
+    <p>
+      While contributing data connectors to Cognee Community, we investigated a persistent crash in <code>cognee-community-hybrid-adapter-falkor</code> (<a href="https://github.com/topoteretes/cognee-community/issues/262" target="_blank" rel="noopener">Issue #262</a>): <strong>every graph dataset containing edges crashed on visualization with <code>KeyError: 'source_node_id'</code></strong>.
+    </p>
+
+    <div class="callout amber">
+      <strong>The Blast Radius:</strong> Whenever a user called <code>GET /v1/datasets/{id}/graph</code> (the core endpoint for Cognee's interactive knowledge graph explorer) or <code>get_filtered_graph_data([])</code>, the server returned an uncaught HTTP 500 error on any graph with at least one relationship.
+    </div>
+
+    <h2>Root Cause Analysis</h2>
+    <p>
+      In FalkorDB Cypher, edge insertions performed by <code>add_edges()</code> execute the following query:
+    </p>
+<pre><code>UNWIND $items AS e
+MERGE (source {id: e.source_id})
+MERGE (target {id: e.target_id})
+MERGE (source)-[r:{rel_type}]->(target)
+SET r += e.props, r.updated_at = timestamp()</code></pre>
+    <p>
+      Notice that <code>e.props</code> only contains custom user attributes and <code>relationship_name</code>. It <strong>never</strong> writes <code>source_node_id</code> or <code>target_node_id</code> to the edge property map.
+    </p>
+    <p>
+      However, <code>FalkorDBAdapter.get_graph_data()</code> queried:
+    </p>
+<pre><code>query = """
+MATCH (n)-[r]->(m)
+RETURN ID(n) AS source, ID(m) AS target, TYPE(r) AS type, properties(r) AS properties
+"""
+result = await self.query(query)
+edges = [
+    (
+        record[3]["source_node_id"],  # <- CRASH: KeyError!
+        record[3]["target_node_id"],  # <- CRASH: KeyError!
+        record[2],
+        record[3],
+    )
+    for record in result.result_set
+]</code></pre>
+    <p>
+      Because <code>properties(r)</code> (index 3) never contained those keys, the list comprehension failed immediately. In addition, <code>ID(n)</code> returned FalkorDB's internal integer ID, which contradicted the string UUIDs stored in Cognee's node records!
+    </p>
+
+    <h2>The Fix</h2>
+    <p>
+      We refactored the Cypher projection to bind the endpoint nodes' business identifiers directly:
+    </p>
+<pre><code>query = """
+MATCH (n)-[r]->(m)
+RETURN n.id AS source, m.id AS target, TYPE(r) AS type, properties(r) AS properties
+"""
+result = await self.query(query)
+edges = [
+    (
+        str(record[0]) if record[0] is not None else record[3].get("source_node_id", ""),
+        str(record[1]) if record[1] is not None else record[3].get("target_node_id", ""),
+        record[2],
+        record[3],
+    )
+    for record in result.result_set
+]</code></pre>
+
+    <div class="callout green">
+      <strong>Verification & Conformance:</strong> We authored unit regression tests in <code>packages/hybrid/falkordb/tests/unit/test_get_graph_data.py</code> covering UUID resolution and legacy fallback. All unit tests and Ruff linter checks pass with zero errors.
+    </div>
+  </main>
+
+  <footer>
+    <p>Authored by <a href="https://github.com/soujasK">Soujas K</a> for Mergetober 2026 · WeMakeDevs × Cognee</p>
+  </footer>
+</body>
+</html>
