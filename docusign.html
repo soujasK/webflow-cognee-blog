@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contract Memory & Execution Status: Building the DocuSign eSignature Connector for Cognee | Soujas K</title>
+  <meta name="description" content="Technical deep-dive on syncing DocuSign agreement envelopes, signatory audit trails, and document metadata into Cognee persistent graph memory for Mergetober 2026.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --card-bg: #ffffff;
+      --card-hover: #f1f5f9;
+      --card-border: #e2e8f0;
+      --card-border-strong: #cbd5e1;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --text-subtle: #64748b;
+      --accent: #0284c7;
+      --accent-dark: #0369a1;
+      --accent-light: #e0f2fe;
+      --code-bg: #0b1120;
+      --code-text: #f1f5f9;
+      --inline-code-bg: #f1f5f9;
+      --inline-code-border: #e2e8f0;
+      --green: #059669;
+      --green-light: #ecfdf5;
+      --green-border: #a7f3d0;
+      --blue: #0284c7;
+      --blue-light: #f0f9ff;
+      --blue-border: #bae6fd;
+      --amber: #d97706;
+      --amber-light: #fffbeb;
+      --amber-border: #fde68a;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg);
+      color: var(--text-main);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.75;
+      padding: 0 1.25rem 5rem;
+      -webkit-font-smoothing: antialiased;
+      background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+    header.site-header {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 2.5rem 0 1.5rem;
+      border-bottom: 1px solid var(--card-border-strong);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .brand { font-weight: 800; font-size: 1.2rem; color: var(--text-main); text-decoration: none; letter-spacing: -0.02em; }
+    .brand span { color: var(--accent); }
+    .nav-links a { color: var(--text-muted); text-decoration: none; margin-left: 1.5rem; font-size: 0.9rem; font-weight: 500; transition: color 0.15s ease; }
+    .nav-links a:hover { color: var(--text-main); }
+    .container {
+      max-width: 860px;
+      margin: 2.5rem auto 0;
+      background: var(--surface);
+      border: 1px solid var(--card-border);
+      border-radius: 0.75rem;
+      padding: 2.75rem 2.25rem;
+      box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04);
+      border-top: 4px solid var(--accent);
+    }
+    h1 {
+      font-size: 2.25rem;
+      font-weight: 800;
+      line-height: 1.25;
+      margin-bottom: 1rem;
+      color: var(--text-main);
+      letter-spacing: -0.03em;
+    }
+    .meta-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      align-items: center;
+      margin-bottom: 2rem;
+      font-size: 0.85rem;
+      color: var(--text-subtle);
+      padding-bottom: 1.25rem;
+      border-bottom: 1px solid var(--card-border);
+    }
+    .badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 0.25rem 0.65rem;
+      border-radius: 0.375rem;
+      background: #f1f5f9;
+      color: var(--text-main);
+      border: 1px solid var(--card-border-strong);
+    }
+    .badge.hackathon {
+      background: var(--blue-light);
+      color: var(--accent-dark);
+      border-color: var(--blue-border);
+    }
+    h2 {
+      font-size: 1.45rem;
+      font-weight: 700;
+      margin: 2.5rem 0 1rem;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 0.5rem;
+    }
+    h3 {
+      font-size: 1.15rem;
+      font-weight: 600;
+      margin: 1.75rem 0 0.75rem;
+      color: var(--text-main);
+    }
+    p { margin-bottom: 1.35rem; color: var(--text-muted); font-size: 1rem; }
+    p strong { color: var(--text-main); }
+    ul, ol { margin: 0 0 1.5rem 1.5rem; color: var(--text-muted); }
+    li { margin-bottom: 0.5rem; }
+    code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.88em;
+      background: var(--inline-code-bg);
+      border: 1px solid var(--inline-code-border);
+      padding: 0.15em 0.4em;
+      border-radius: 0.25rem;
+      color: var(--text-main);
+    }
+    pre {
+      background: var(--code-bg);
+      color: var(--code-text);
+      padding: 1.25rem 1.5rem;
+      border-radius: 0.5rem;
+      overflow-x: auto;
+      margin: 1.5rem 0 2rem;
+      font-size: 0.88rem;
+      line-height: 1.6;
+      border: 1px solid #1e293b;
+    }
+    pre code {
+      background: transparent;
+      padding: 0;
+      border: none;
+      color: inherit;
+    }
+    .callout {
+      background: var(--blue-light);
+      border: 1px solid var(--blue-border);
+      border-left: 4px solid var(--accent);
+      padding: 1.25rem 1.5rem;
+      border-radius: 0.5rem;
+      margin: 1.75rem 0;
+    }
+    .callout p { margin-bottom: 0; color: #0369a1; font-size: 0.95rem; }
+    .callout p strong { color: #0c4a6e; }
+    .back-link {
+      display: inline-block;
+      margin-bottom: 1.5rem;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .back-link:hover { text-decoration: underline; }
+    footer {
+      max-width: 860px;
+      margin: 3rem auto 0;
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--text-subtle);
+      border-top: 1px solid var(--card-border);
+      padding-top: 2rem;
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <a href="index.html" class="brand">SOUJAS K <span>/</span> ENG BLOG</a>
+    <nav class="nav-links">
+      <a href="index.html">Overview</a>
+      <a href="https://github.com/topoteretes/cognee-community" target="_blank" rel="noopener">Cognee Community</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <a href="index.html" class="back-link">Return to Research Index</a>
+    
+    <h1>Contract Memory & Execution Status: Building the DocuSign eSignature Connector for Cognee</h1>
+    
+    <div class="meta-bar">
+      <span class="badge hackathon">MERGETOBER 2026</span>
+      <span class="badge">CONNECTOR</span>
+      <span class="badge">LEGAL TECH</span>
+      <span class="badge">COGNIFY</span>
+      <span>Published: October 13, 2026</span>
+      <span>Target Issue: topoteretes/cognee#5716</span>
+    </div>
+
+    <p>
+      In business and enterprise operations, legal contracts dictate vendor relationships, client obligations, non-disclosure parameters, and payment structures. While DocuSign provides automated routing for signature collection, contract intelligence remains trapped in isolated PDFs and email notifications.
+    </p>
+
+    <p>
+      We engineered <code>cognee-community-connector-docusign</code> to bridge this gap. By indexing envelope lifecycles, signatory approval audits, and document metadata into Cognee, AI agents gain immediate recall over executed agreements and pending approvals.
+    </p>
+
+    <h2>1. The Challenge: Legal Agreement Blindspots</h2>
+    <p>
+      Enterprise LLMs frequently fail when asked operational legal questions:
+    </p>
+    <ul>
+      <li><em>"Which vendor master services agreements have been fully executed this quarter?"</em></li>
+      <li><em>"Did the client sign the indemnification addendum or is it still pending their legal review?"</em></li>
+      <li><em>"Who authorized the software licensing agreement on behalf of engineering?"</em></li>
+    </ul>
+    <p>
+      Without a dedicated connector, contracts are black boxes. Ingesting raw PDFs directly can lose critical audit metadata such as signer identities, completion timestamps, and envelope identifiers.
+    </p>
+
+    <h2>2. DocuSign eSignature REST API v2.1 Architecture</h2>
+    <p>
+      The connector implements <code>DocuSignClient</code> to interface with DocuSign's v2.1 endpoints:
+    </p>
+    <ul>
+      <li><strong>Envelope Discovery (<code>/v2.1/accounts/{id}/envelopes</code>):</strong> Fetches envelope IDs, status (completed, sent, delivered, voided), email subject, and timestamps.</li>
+      <li><strong>Signatory Resolution (<code>/recipients</code>):</strong> Queries active signers, CC recipients, and individual signature completion states.</li>
+      <li><strong>Document Manifest (<code>/documents</code>):</strong> Retrieves enclosed document identifiers and names for structured document linking.</li>
+    </ul>
+
+    <pre><code># packages/connector/docusign/cognee_community_connector_docusign/docusign.py
+import dlt
+import httpx
+from typing import Any
+from collections.abc import Iterator
+
+DOCUMENT_SOURCE_ATTR = "cognee_document_source"
+
+class DocuSignClient:
+    def __init__(self, account_id: str, access_token: str, base_url: str):
+        self.account_id = account_id
+        self.access_token = access_token
+        self.base_url = base_url.rstrip("/")
+
+    def get_envelopes(self, from_date: str | None = None) -> list[dict[str, Any]]:
+        # Queries envelopes with from_date incremental cursoring
+        ...
+
+    def get_envelope_recipients(self, envelope_id: str) -> dict[str, Any]:
+        # Resolves signers and audit status
+        ...</code></pre>
+
+    <h2>3. Knowledge Graph Topology</h2>
+    <p>
+      Passing DocuSign documents through Cognee's <code>cognify()</code> pipeline constructs rich graph relationships:
+    </p>
+    <ul>
+      <li><code>(ContractEnvelope)-[:HAS_SIGNER]->(SignatoryUser)</code></li>
+      <li><code>(ContractEnvelope)-[:ENCLOSES]->(AgreementDocument)</code></li>
+      <li><code>(SignatoryUser)-[:APPROVED_AT]->(ExecutionTimestamp)</code></li>
+    </ul>
+
+    <h2>4. Resilient Offline Testing</h2>
+    <p>
+      To ensure reliable continuous integration, the connector includes a standalone test suite with zero live API dependencies:
+    </p>
+    <pre><code># packages/connector/docusign/tests/test_docusign.py
+def test_docusign_source_document_generation(mock_envelopes_response):
+    mock_client = httpx.Client(transport=httpx.MockTransport(mock_handler))
+    source = docusign_source(
+        account_id="acc-123",
+        access_token="mock-token",
+        http_client=mock_client,
+    )
+    assert getattr(source, DOCUMENT_SOURCE_ATTR) == "docusign"</code></pre>
+
+    <h2>5. Implementation Verification</h2>
+    <p>
+      The connector was validated locally with Cognee:
+    </p>
+    <ul>
+      <li>100% test pass rate with <code>pytest</code>.</li>
+      <li>Clean formatting passing strict <code>ruff</code> checks.</li>
+      <li>Proper DCO sign-offs on all commits.</li>
+    </ul>
+  </main>
+
+  <footer>
+    <p>Authored by Soujas K for Mergetober 2026. Published under Apache-2.0 License.</p>
+  </footer>
+</body>
+</html>

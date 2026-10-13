@@ -447,7 +447,7 @@
     <div class="hero-banner">
       <h1>Giving AI Agents Enterprise Memory</h1>
       <p>
-        Building production-grade data connectors (Webflow, Slab, Freshdesk, tl;dv) and hunting down deep graph database engine bugs in Cognee for Mergetober 2026.
+        Building production-grade data connectors (Webflow, Slab, Freshdesk, tl;dv, Opsgenie, DocuSign) and hunting down deep graph database engine bugs in Cognee for Mergetober 2026.
       </p>
       <div class="meta-tags">
         <span class="badge">Mergetober 2026</span>
@@ -463,9 +463,12 @@
       <button class="tab-btn active" onclick="switchArticle('webflow', this)">1. Webflow CMS</button>
       <button class="tab-btn" onclick="switchArticle('slab', this)">2. Slab Wiki</button>
       <button class="tab-btn" onclick="switchArticle('freshdesk', this)">3. Freshdesk Support</button>
-      <button class="tab-btn" onclick="switchArticle('tldv', this)">4. tl;dv Meeting Intelligence</button>
-      <button class="tab-btn" onclick="switchArticle('falkordb', this)">5. FalkorDB Bugfix Deep-Dive</button>
+      <button class="tab-btn" onclick="switchArticle('tldv', this)">4. tl;dv Meetings</button>
+      <button class="tab-btn" onclick="switchArticle('falkordb', this)">5. FalkorDB Bugfix</button>
+      <button class="tab-btn" onclick="switchArticle('opsgenie', this)">6. Opsgenie Incidents</button>
+      <button class="tab-btn" onclick="switchArticle('docusign', this)">7. DocuSign Contracts</button>
     </div>
+
 
     <!-- ==================== ARTICLE 1: WEBFLOW ==================== -->
     <article id="art-webflow" class="article-section active">
@@ -867,6 +870,122 @@ edges = [
         <strong>Verification & Conformance:</strong> We authored unit regression tests in <code>packages/hybrid/falkordb/tests/unit/test_get_graph_data.py</code> covering UUID resolution and legacy fallback. All unit tests and Ruff linter checks pass with zero errors.
       </div>
     </article>
+
+    <!-- ==================== ARTICLE 6: OPSGENIE ==================== -->
+    <article id="art-opsgenie" class="article-section">
+      <h2>Incident Memory & Real-Time On-Call: The Atlassian Opsgenie Connector</h2>
+      <div style="margin-bottom: 1.25rem;"><a href="opsgenie.html" style="color: var(--accent-dark); font-size: 0.88rem; text-decoration: underline; font-family: 'JetBrains Mono', monospace; font-weight: 600;">Dedicated Article Permalink: opsgenie.html</a></div>
+      <p>
+        In modern engineering organizations using the Atlassian stack, Opsgenie is the central platform for alert routing, on-call schedules, and incident escalation. AI developer agents frequently lack operational visibility into active P1-P5 outages, on-call responder assignments, and escalation policies.
+      </p>
+      <p>
+        We implemented <code>cognee-community-connector-opsgenie</code> to extract alerts and on-call rotation schedules via the Opsgenie REST API v2, converting them into structured Markdown documents for Cognee's persistent memory and knowledge graph extraction pipeline.
+      </p>
+
+      <div class="arch-card">
+        <div class="arch-header">
+          <span class="arch-title">Systems Topology: Opsgenie Alerts to Graph Memory</span>
+          <span class="arch-badge">dlt replace · DOCUMENT_SOURCE_ATTR = "opsgenie"</span>
+        </div>
+        <div class="arch-grid">
+          <div class="arch-node">
+            <span class="arch-node-tag">Stage 1 · Ingress</span>
+            <div class="arch-node-title">Opsgenie REST API v2</div>
+            <div class="arch-node-title" style="font-size: 0.75rem; font-weight: normal; color: var(--text-muted);">Alerts & Schedules</div>
+            <div class="arch-node-desc">GenieKey token authentication. Queries /v2/alerts (P1-P5) and /v2/schedules rotation participants.</div>
+            <div class="arch-node-meta">Protocol: <code>GET /v2/alerts</code></div>
+          </div>
+          <div class="arch-node">
+            <span class="arch-node-tag green">Stage 2 · Normalizer</span>
+            <div class="arch-node-title">Document Pipeline</div>
+            <div class="arch-node-desc">Extracts priorities, tags, affected entities, and active on-call engineers into clean Markdown.</div>
+            <div class="arch-node-meta">Marker: <code>opsgenie_source</code></div>
+          </div>
+          <div class="arch-node">
+            <span class="arch-node-tag amber">Stage 3 · Cognify Core</span>
+            <div class="arch-node-title">Graph Extraction</div>
+            <div class="arch-node-desc">Builds multi-hop relationships: (Alert)-[:AFFECTS]->(Service) and (Schedule)-[:ACTIVE_ON_CALL]->(Engineer).</div>
+            <div class="arch-node-meta">Graph: <code>Entity Triplet Extractor</code></div>
+          </div>
+          <div class="arch-node">
+            <span class="arch-node-tag purple">Stage 4 · Search</span>
+            <div class="arch-node-title">Contextual Query</div>
+            <div class="arch-node-desc">Fast neural search across active outages and instant identification of responsible on-call engineers.</div>
+            <div class="arch-node-meta">Query: <code>await cognee.search(...)</code></div>
+          </div>
+        </div>
+      </div>
+
+      <h3>Pytest Verification</h3>
+      <p>
+        The package contains a complete standalone unit test suite with zero live API dependencies using <code>httpx.MockTransport</code>:
+      </p>
+<pre><code>def test_opsgenie_source_document_generation(mock_alerts_response, mock_schedules_response):
+    mock_client = httpx.Client(transport=httpx.MockTransport(mock_handler))
+    source = opsgenie_source(api_key="mock-key", http_client=mock_client)
+    assert getattr(source, DOCUMENT_SOURCE_ATTR) == "opsgenie"</code></pre>
+      <div class="callout green">
+        <strong>Status:</strong> 100% test pass rate with pytest and clean Ruff formatting. Ready for pull request submission upon maintainer assignment.
+      </div>
+    </article>
+
+    <!-- ==================== ARTICLE 7: DOCUSIGN ==================== -->
+    <article id="art-docusign" class="article-section">
+      <h2>Contract Memory & Execution Status: The DocuSign eSignature Connector</h2>
+      <div style="margin-bottom: 1.25rem;"><a href="docusign.html" style="color: var(--accent-dark); font-size: 0.88rem; text-decoration: underline; font-family: 'JetBrains Mono', monospace; font-weight: 600;">Dedicated Article Permalink: docusign.html</a></div>
+      <p>
+        Legal contracts and customer agreements are central to enterprise decision making. While DocuSign manages electronic signature collection, autonomous agents struggle to determine contract execution status, signatory history, and agreement terms without unified indexing.
+      </p>
+      <p>
+        We built <code>cognee-community-connector-docusign</code> to pull contract envelopes, signer audit logs, and document metadata via the DocuSign eSignature REST API v2.1 into Cognee's persistent memory layer.
+      </p>
+
+      <div class="arch-card">
+        <div class="arch-header">
+          <span class="arch-title">Systems Topology: DocuSign Agreements to Graph Memory</span>
+          <span class="arch-badge">dlt replace · DOCUMENT_SOURCE_ATTR = "docusign"</span>
+        </div>
+        <div class="arch-grid">
+          <div class="arch-node">
+            <span class="arch-node-tag">Stage 1 · Ingress</span>
+            <div class="arch-node-title">eSignature REST API</div>
+            <div class="arch-node-desc">OAuth Bearer token auth. Queries /v2.1/accounts/{id}/envelopes with from_date incremental cursoring.</div>
+            <div class="arch-node-meta">Protocol: <code>GET /v2.1/envelopes</code></div>
+          </div>
+          <div class="arch-node">
+            <span class="arch-node-tag green">Stage 2 · Resolution</span>
+            <div class="arch-node-title">Signatory Audit</div>
+            <div class="arch-node-desc">Queries /recipients and /documents to map signers, approval status, and attached contract manifests.</div>
+            <div class="arch-node-meta">Marker: <code>docusign_source</code></div>
+          </div>
+          <div class="arch-node">
+            <span class="arch-node-tag amber">Stage 3 · Cognify Core</span>
+            <div class="arch-node-title">Knowledge Graph</div>
+            <div class="arch-node-desc">Generates typed nodes: (Envelope)-[:HAS_SIGNER]->(Signatory) and (Envelope)-[:ENCLOSES]->(Document).</div>
+            <div class="arch-node-meta">Graph: <code>Legal Entity Mapper</code></div>
+          </div>
+          <div class="arch-node">
+            <span class="arch-node-tag purple">Stage 4 · Search</span>
+            <div class="arch-node-title">Contract Discovery</div>
+            <div class="arch-node-desc">Agents answer complex legal queries regarding agreement status, execution dates, and signer identities.</div>
+            <div class="arch-node-meta">Query: <code>await cognee.search(...)</code></div>
+          </div>
+        </div>
+      </div>
+
+      <h3>Pytest Verification</h3>
+      <p>
+        Verified locally with offline fixtures simulating completed, voided, and pending envelope lifecycles:
+      </p>
+<pre><code>def test_docusign_source_document_generation(mock_envelopes_response):
+    mock_client = httpx.Client(transport=httpx.MockTransport(mock_handler))
+    source = docusign_source(account_id="acc-123", access_token="mock-token", http_client=mock_client)
+    assert getattr(source, DOCUMENT_SOURCE_ATTR) == "docusign"</code></pre>
+      <div class="callout green">
+        <strong>Status:</strong> 100% test pass rate with pytest and clean Ruff formatting. Ready for pull request submission upon maintainer assignment.
+      </div>
+    </article>
+
   </div>
 
   <footer class="site-footer">
