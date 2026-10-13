@@ -447,7 +447,7 @@
     <div class="hero-banner">
       <h1>Giving AI Agents Enterprise Memory</h1>
       <p>
-        Building production-grade data connectors (Webflow, Slab, Freshdesk, tl;dv, Opsgenie, DocuSign, SEC EDGAR) and hunting down deep graph database engine bugs in Cognee for Mergetober 2026.
+        Building production-grade data connectors (Webflow, Slab, Freshdesk, tl;dv, Opsgenie, DocuSign, SEC EDGAR, Gong, Front) and hunting down deep graph database engine bugs in Cognee for Mergetober 2026.
       </p>
       <div class="meta-tags">
         <span class="badge">Mergetober 2026</span>
@@ -468,6 +468,8 @@
       <button class="tab-btn" onclick="switchArticle('opsgenie', this)">6. Opsgenie Incidents</button>
       <button class="tab-btn" onclick="switchArticle('docusign', this)">7. DocuSign Contracts</button>
       <button class="tab-btn" onclick="switchArticle('edgar', this)">8. SEC EDGAR Filings</button>
+      <button class="tab-btn" onclick="switchArticle('gong', this)">9. Gong Transcripts</button>
+      <button class="tab-btn" onclick="switchArticle('front', this)">10. Front Inboxes</button>
     </div>
 
 
@@ -1042,6 +1044,120 @@ edges = [
     assert getattr(source, DOCUMENT_SOURCE_ATTR) == "edgar"</code></pre>
       <div class="callout green">
         <strong>Status:</strong> 100% test pass rate with pytest and clean Ruff formatting. Ready for pull request submission upon maintainer assignment.
+      </div>
+    </article>
+
+    <!-- ==================== ARTICLE 9: GONG ==================== -->
+    <article id="art-gong" class="article-section">
+      <h2>Revenue Intelligence & Spoken Dialogue: The Gong Connector</h2>
+      <div style="margin-bottom: 1.25rem;"><a href="gong.html" style="color: var(--accent-dark); font-size: 0.88rem; text-decoration: underline; font-family: 'JetBrains Mono', monospace; font-weight: 600;">Dedicated Article Permalink: gong.html</a></div>
+      <p>
+        In enterprise software, the most critical customer feedback, pricing objections, and security requirements are voiced verbally in sales calls and architecture reviews. Gong records and transcribes these conversations, but they traditionally sit isolated in revenue analytics dashboards.
+      </p>
+      <p>
+        Targeting upstream roadmap issue <code>topoteretes/cognee#4743</code>, we implemented <code>cognee-community-connector-gong</code> to stream call metadata, monologue sequences, and speaker attributions directly into Cognee knowledge graphs.
+      </p>
+
+      <div class="arch-card">
+        <div class="arch-header">
+          <span class="arch-title">Systems Topology: Gong Transcripts to Revenue Knowledge Graph</span>
+          <span class="arch-badge">dlt merge · DOCUMENT_SOURCE_ATTR = "gong"</span>
+        </div>
+        <div class="arch-grid">
+          <div class="arch-node">
+            <span class="arch-node-tag">Stage 1 · Ingress</span>
+            <div class="arch-node-title">Gong REST API v2</div>
+            <div class="arch-node-desc">Basic auth using access-key and secret-key. Queries /v2/calls and /v2/calls/transcript with filter batching.</div>
+            <div class="arch-node-meta">Protocol: <code>GET /v2/calls</code></div>
+          </div>
+          <div class="arch-node">
+            <span class="arch-node-tag green">Stage 2 · Dialogue</span>
+            <div class="arch-node-title">Speaker Attribution</div>
+            <div class="arch-node-desc">Reconstructs timestamped monologue dialogue arrays with speaker IDs, direction, and call durations.</div>
+            <div class="arch-node-meta">Marker: <code>gong_source</code></div>
+          </div>
+          <div class="arch-node">
+            <span class="arch-node-tag amber">Stage 3 · Cognify Core</span>
+            <div class="arch-node-title">Graph Synthesis</div>
+            <div class="arch-node-desc">Extracts typed relationships: (Prospect)-[:RAISED_OBJECTION]->(Sovereignty) and (Rep)-[:PROMISED_FEATURE]->(Roadmap).</div>
+            <div class="arch-node-meta">Graph: <code>Spoken Dialogue Extractor</code></div>
+          </div>
+          <div class="arch-node">
+            <span class="arch-node-tag purple">Stage 4 · Search</span>
+            <div class="arch-node-title">Revenue Recall</div>
+            <div class="arch-node-desc">Autonomous sales and solution engineering agents query spoken commitments with temporal accuracy.</div>
+            <div class="arch-node-meta">Query: <code>await cognee.search(...)</code></div>
+          </div>
+        </div>
+      </div>
+
+      <h3>Pytest Verification</h3>
+      <p>
+        Verified locally with offline mock transports simulating call lists and monologue transcripts:
+      </p>
+<pre><code>def test_gong_source_document_generation(mock_calls_response, mock_transcripts_response):
+    mock_client = httpx.Client(transport=httpx.MockTransport(mock_handler))
+    source = gong_source(access_key="test-key", secret_key="test-secret", http_client=mock_client)
+    assert getattr(source, DOCUMENT_SOURCE_ATTR) == "gong"</code></pre>
+      <div class="callout green">
+        <strong>Status:</strong> 100% test pass rate with pytest and clean Ruff formatting. Branch <code>feature/gong-connector</code> ready for PR upon assignment.
+      </div>
+    </article>
+
+    <!-- ==================== ARTICLE 10: FRONT ==================== -->
+    <article id="art-front" class="article-section">
+      <h2>Shared Inbox Memory & Customer Operations: The Front Connector</h2>
+      <div style="margin-bottom: 1.25rem;"><a href="front.html" style="color: var(--accent-dark); font-size: 0.88rem; text-decoration: underline; font-family: 'JetBrains Mono', monospace; font-weight: 600;">Dedicated Article Permalink: front.html</a></div>
+      <p>
+        Front serves as the operational hub for customer-facing teams, unifying email inboxes, support tickets, and partner correspondence. Customer correspondence holds real-time incident reports, SLA escalations, and technical workarounds.
+      </p>
+      <p>
+        Targeting upstream roadmap issue <code>topoteretes/cognee#4734</code>, we implemented <code>cognee-community-connector-front</code> to stream conversation records and message dialogue trees into Cognee persistent memory.
+      </p>
+
+      <div class="arch-card">
+        <div class="arch-header">
+          <span class="arch-title">Systems Topology: Front Shared Inboxes to Operational Graph Memory</span>
+          <span class="arch-badge">dlt merge · DOCUMENT_SOURCE_ATTR = "front"</span>
+        </div>
+        <div class="arch-grid">
+          <div class="arch-node">
+            <span class="arch-node-tag">Stage 1 · Ingress</span>
+            <div class="arch-node-title">Front Core REST API</div>
+            <div class="arch-node-desc">Bearer token authentication. Streams conversations (/conversations) and thread history (/conversations/{id}/messages).</div>
+            <div class="arch-node-meta">Protocol: <code>GET /conversations</code></div>
+          </div>
+          <div class="arch-node">
+            <span class="arch-node-tag green">Stage 2 · Threading</span>
+            <div class="arch-node-title">Thread Reconstruction</div>
+            <div class="arch-node-desc">Maintains chronological message trees with author identities, customer contact handles, and timestamps.</div>
+            <div class="arch-node-meta">Marker: <code>front_source</code></div>
+          </div>
+          <div class="arch-node">
+            <span class="arch-node-tag amber">Stage 3 · Cognify Core</span>
+            <div class="arch-node-title">Ops Knowledge Graph</div>
+            <div class="arch-node-desc">Synthesizes nodes: (Customer)-[:REPORTED_ISSUE]->(Incident) and (Incident)-[:RESOLVED_BY]->(Engineer).</div>
+            <div class="arch-node-meta">Graph: <code>Customer Ops Extractor</code></div>
+          </div>
+          <div class="arch-node">
+            <span class="arch-node-tag purple">Stage 4 · Search</span>
+            <div class="arch-node-title">Incident Memory</div>
+            <div class="arch-node-desc">Agents answer complex inquiries regarding past production outages, recurring customer bugs, and SLAs.</div>
+            <div class="arch-node-meta">Query: <code>await cognee.search(...)</code></div>
+          </div>
+        </div>
+      </div>
+
+      <h3>Pytest Verification</h3>
+      <p>
+        Verified locally with offline mock fixtures testing conversation queries and message arrays:
+      </p>
+<pre><code>def test_front_source_document_generation(mock_conversations_response, mock_messages_response):
+    mock_client = httpx.Client(transport=httpx.MockTransport(mock_handler))
+    source = front_source(api_token="test-token", http_client=mock_client)
+    assert getattr(source, DOCUMENT_SOURCE_ATTR) == "front"</code></pre>
+      <div class="callout green">
+        <strong>Status:</strong> 100% test pass rate with pytest and clean Ruff formatting. Branch <code>feature/front-connector</code> ready for PR upon assignment.
       </div>
     </article>
 

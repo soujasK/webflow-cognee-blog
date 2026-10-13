@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shared Inbox Memory & Customer Operations: Building the Front Connector for Cognee | Soujas K</title>
+  <meta name="description" content="Technical deep-dive on syncing Front customer correspondence, multi-party email threads, and support resolution history into Cognee persistent graph memory for Mergetober 2026.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --card-bg: #ffffff;
+      --card-hover: #f1f5f9;
+      --card-border: #e2e8f0;
+      --card-border-strong: #cbd5e1;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --text-subtle: #64748b;
+      --accent: #0284c7;
+      --accent-dark: #0369a1;
+      --accent-light: #e0f2fe;
+      --code-bg: #0b1120;
+      --code-text: #f1f5f9;
+      --inline-code-bg: #f1f5f9;
+      --inline-code-border: #e2e8f0;
+      --green: #059669;
+      --green-light: #ecfdf5;
+      --green-border: #a7f3d0;
+      --blue: #0284c7;
+      --blue-light: #f0f9ff;
+      --blue-border: #bae6fd;
+      --amber: #d97706;
+      --amber-light: #fffbeb;
+      --amber-border: #fde68a;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg);
+      color: var(--text-main);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.75;
+      padding: 0 1.25rem 5rem;
+      -webkit-font-smoothing: antialiased;
+      background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+    header.site-header {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 2.5rem 0 1.5rem;
+      border-bottom: 1px solid var(--card-border-strong);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .brand { font-weight: 800; font-size: 1.2rem; color: var(--text-main); text-decoration: none; letter-spacing: -0.02em; }
+    .brand span { color: var(--accent); }
+    .nav-links a { color: var(--text-muted); text-decoration: none; margin-left: 1.5rem; font-size: 0.9rem; font-weight: 500; transition: color 0.15s ease; }
+    .nav-links a:hover { color: var(--text-main); }
+    .container {
+      max-width: 860px;
+      margin: 2.5rem auto 0;
+      background: var(--surface);
+      border: 1px solid var(--card-border);
+      border-radius: 0.75rem;
+      padding: 2.75rem 2.25rem;
+      box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04);
+      border-top: 4px solid var(--accent);
+    }
+    h1 {
+      font-size: 2.25rem;
+      font-weight: 800;
+      line-height: 1.25;
+      margin-bottom: 1rem;
+      color: var(--text-main);
+      letter-spacing: -0.03em;
+    }
+    .meta-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      align-items: center;
+      margin-bottom: 2rem;
+      font-size: 0.85rem;
+      color: var(--text-subtle);
+      padding-bottom: 1.25rem;
+      border-bottom: 1px solid var(--card-border);
+    }
+    .badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 0.25rem 0.65rem;
+      border-radius: 0.375rem;
+      background: #f1f5f9;
+      color: var(--text-main);
+      border: 1px solid var(--card-border-strong);
+    }
+    .badge.hackathon {
+      background: var(--blue-light);
+      color: var(--accent-dark);
+      border-color: var(--blue-border);
+    }
+    h2 {
+      font-size: 1.45rem;
+      font-weight: 700;
+      margin: 2.5rem 0 1rem;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 0.5rem;
+    }
+    h3 {
+      font-size: 1.15rem;
+      font-weight: 600;
+      margin: 1.75rem 0 0.75rem;
+      color: var(--text-main);
+    }
+    p { margin-bottom: 1.35rem; color: var(--text-muted); font-size: 1rem; }
+    p strong { color: var(--text-main); }
+    ul, ol { margin: 0 0 1.5rem 1.5rem; color: var(--text-muted); }
+    li { margin-bottom: 0.5rem; }
+    code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.88em;
+      background: var(--inline-code-bg);
+      border: 1px solid var(--inline-code-border);
+      padding: 0.15em 0.4em;
+      border-radius: 0.25rem;
+      color: var(--text-main);
+    }
+    pre {
+      background: var(--code-bg);
+      color: var(--code-text);
+      padding: 1.25rem 1.5rem;
+      border-radius: 0.5rem;
+      overflow-x: auto;
+      margin: 1.5rem 0 2rem;
+      font-size: 0.88rem;
+      line-height: 1.6;
+      border: 1px solid #1e293b;
+    }
+    pre code {
+      background: transparent;
+      padding: 0;
+      border: none;
+      color: inherit;
+    }
+    .callout {
+      background: var(--blue-light);
+      border: 1px solid var(--blue-border);
+      border-left: 4px solid var(--accent);
+      padding: 1.25rem 1.5rem;
+      border-radius: 0.5rem;
+      margin: 1.75rem 0;
+    }
+    .callout p { margin-bottom: 0; color: #0369a1; font-size: 0.95rem; }
+    .callout p strong { color: #0c4a6e; }
+    .back-link {
+      display: inline-block;
+      margin-bottom: 1.5rem;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .back-link:hover { text-decoration: underline; }
+    footer {
+      max-width: 860px;
+      margin: 3rem auto 0;
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--text-subtle);
+      border-top: 1px solid var(--card-border);
+      padding-top: 2rem;
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <a href="index.html" class="brand">SOUJAS K <span>/</span> ENG BLOG</a>
+    <nav class="nav-links">
+      <a href="index.html">Overview</a>
+      <a href="https://github.com/topoteretes/cognee-community" target="_blank" rel="noopener">Cognee Community</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <a href="index.html" class="back-link">Return to Research Index</a>
+    
+    <h1>Shared Inbox Memory & Customer Operations: Building the Front Connector for Cognee</h1>
+    
+    <div class="meta-bar">
+      <span class="badge hackathon">MERGETOBER 2026</span>
+      <span class="badge">OFFICIAL ROADMAP #4734</span>
+      <span class="badge">CUSTOMER OPERATIONS</span>
+      <span class="badge">COGNIFY</span>
+      <span>Published: October 13, 2026</span>
+      <span>Author: Soujas K</span>
+    </div>
+
+    <div class="callout">
+      <p><strong>Official Roadmap Initiative:</strong> This connector targets upstream issue <code>topoteretes/cognee#4734</code>, authored by maintainer <code>@NMZivkovic</code>. It ingests Front shared inbox threads, customer emails, and support dialogue histories into Cognee persistent graph memory.</p>
+    </div>
+
+    <h2>1. Executive Summary & Problem Framing</h2>
+    <p>
+      Front powers mission-critical operations for high-velocity teams, consolidating shared inboxes across support, operations, billing, and partner channels into unified conversation feeds. Each customer inquiry contains vital diagnostic clues: incident timestamps, specific error messages, escalation histories, and internal staff resolution notes.
+    </p>
+    <p>
+      However, customer operations data is historically trapped within closed helpdesk silos. When engineering, product, and AI agents seek to diagnose recurring production failures or prioritize technical debt, they lack a unified graph connecting customer tickets to underlying system components.
+    </p>
+    <p>
+      The <code>cognee-community-connector-front</code> package bridges this gap by transforming Front conversations and threaded correspondence into structured Cognee memory documents, preserving sender identities, chronological thread progressions, and ticket states.
+    </p>
+
+    <h2>2. Front Core REST API Architecture</h2>
+    <p>
+      The Front Core REST API v2 models communication hierarchically. Conversations act as containers for multi-party messages, comments, and status transitions:
+    </p>
+    <ul>
+      <li><strong>Conversation Discovery (<code>GET /conversations</code>):</strong> Lists conversation entities with unique IDs, subjects, statuses (assigned, archived, unassigned), and primary recipient handles.</li>
+      <li><strong>Message Sequence Fetch (<code>GET /conversations/{id}/messages</code>):</strong> Fetches the full dialogue thread for a given conversation ID, providing sender attribution, message bodies, timestamps, and message types.</li>
+    </ul>
+
+    <p>
+      Authentication is performed via Bearer token authorization using <code>FRONT_API_TOKEN</code>:
+    </p>
+
+    <pre><code>class FrontClient:
+    """Client for Front Core REST API v2."""
+
+    def __init__(
+        self,
+        api_token: str,
+        base_url: str = "https://api2.frontapp.com",
+        client: httpx.Client | None = None,
+    ) -> None:
+        self.api_token = api_token
+        self.base_url = base_url.rstrip("/")
+        self._client = client or httpx.Client(timeout=30.0)
+
+    def _get_headers(self) -> dict[str, str]:
+        return {
+            "Authorization": f"Bearer {self.api_token}",
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+        }</code></pre>
+
+    <h2>3. Thread Structuring & Sender Attribution</h2>
+    <p>
+      Customer correspondence is fundamentally conversational. A single message without its surrounding thread provides incomplete context, while merging all messages indiscriminately strips temporal progression and author attribution.
+    </p>
+    <p>
+      Our connector iterates through the message array of each conversation, compiling a clean, chronologically ordered transcript where each turn documents author name, email handle, timestamp, and message body:
+    </p>
+
+    <pre><code>message_blocks: list[str] = []
+for msg in messages:
+    author = msg.get("author", {})
+    author_name = (
+        author.get("name", author.get("email", "Unknown"))
+        if isinstance(author, dict)
+        else "Unknown"
+    )
+    body = msg.get("text") or msg.get("body", "")
+    msg_date = msg.get("created_at", "")
+    message_blocks.append(f"**[{author_name} ({msg_date})]:**\n{body}")
+
+thread_text = "\n\n---\n\n".join(message_blocks) if message_blocks else "No messages."</code></pre>
+
+    <h2>4. DLT Pipeline & Memory Source Declaration</h2>
+    <p>
+      To ensure smooth integration with Cognee's data ingestion lifecycle, the connector is wrapped in a <code>dlt</code> source with document source tagging:
+    </p>
+
+    <pre><code>@dlt.source(name="front")
+def _source() -> Any:
+    return [conversations_resource]
+
+source = _source()
+setattr(source, DOCUMENT_SOURCE_ATTR, "front")
+return source</code></pre>
+
+    <p>
+      Setting <code>DOCUMENT_SOURCE_ATTR = "front"</code> registers Front as a recognized enterprise data source in Cognee, enabling automated text chunking, graph entity extraction, and vector embedding across every ingested conversation.
+    </p>
+
+    <h2>5. Operational Knowledge Graph Synthesis</h2>
+    <p>
+      When <code>await cognee.cognify()</code> runs over Front conversation documents, Cognee constructs a multi-layered knowledge graph:
+    </p>
+    <ul>
+      <li><strong>Customer Nodes:</strong> Unique customer contacts and external partner domains.</li>
+      <li><strong>Incident & Topic Nodes:</strong> Specific service endpoints, error codes, and feature requests referenced in support correspondence.</li>
+      <li><strong>Resolution Edges:</strong> Relationships such as <code>(Ticket)-[RESOLVED_BY]->(Staff Member)</code> and <code>(Customer Issue)-[CAUSED_BY]->(API Latency)</code>.</li>
+    </ul>
+
+    <h2>6. Offline Verification & Testing Suite</h2>
+    <p>
+      The test suite executes 100% offline using <code>pytest</code> and <code>httpx.MockTransport</code>, ensuring rock-solid continuous integration without dependencies on external network services:
+    </p>
+
+    <pre><code>def test_front_client_get_conversations(mock_conversations_response):
+    def mock_handler(request: httpx.Request):
+        assert "Bearer test-front-token" in request.headers["Authorization"]
+        assert "/conversations" in request.url.path
+        return httpx.Response(200, json=mock_conversations_response)
+
+    client = httpx.Client(transport=httpx.MockTransport(mock_handler))
+    front_client = FrontClient("test-front-token", client=client)
+    conversations = front_client.get_conversations()
+
+    assert len(conversations) == 1
+    assert conversations[0]["id"] == "cnv_55c8c149"
+    assert conversations[0]["subject"] == "Enterprise SLA escalation request"</code></pre>
+
+    <h2>7. Production Usage Example</h2>
+    <p>
+      Synchronizing Front conversations into Cognee takes just a few lines of asynchronous Python:
+    </p>
+
+    <pre><code>import asyncio
+import os
+import cognee
+from cognee_community_connector_front import front_source
+
+os.environ["FRONT_API_TOKEN"] = "front-core-api-token"
+
+async def main():
+    # 1. Initialize Front connector source
+    source = front_source()
+
+    # 2. Add records to Cognee pipeline
+    await cognee.add(source)
+
+    # 3. Cognify into knowledge graph & vector index
+    await cognee.cognify()
+
+    # 4. Search customer resolution memory
+    results = await cognee.search(
+        "Find escalated customer tickets regarding production latency and downtime."
+    )
+    for result in results:
+        print(f"Result: {result}")
+
+if __name__ == "__main__":
+    asyncio.run(main())</code></pre>
+  </main>
+
+  <footer>
+    <p>Mergetober 2026 Engineering Portfolio &bull; Contributed by Soujas K &bull; Upstream Issue #4734</p>
+  </footer>
+</body>
+</html>
