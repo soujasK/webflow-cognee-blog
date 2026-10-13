@@ -10,20 +10,33 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #090d16;
-      --card-bg: #111827;
-      --card-hover: #162032;
-      --card-border: #1f293d;
-      --text-main: #f3f4f6;
-      --text-muted: #9ca3af;
-      --accent: #8b5cf6;
-      --accent-light: #a78bfa;
-      --accent-glow: rgba(139, 92, 246, 0.15);
-      --code-bg: #050811;
-      --green: #10b981;
-      --blue: #38bdf8;
-      --amber: #f59e0b;
-      --rose: #f43f5e;
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --card-bg: #ffffff;
+      --card-hover: #f1f5f9;
+      --card-border: #e2e8f0;
+      --card-border-strong: #cbd5e1;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --text-subtle: #64748b;
+      --accent: #0284c7;
+      --accent-dark: #0369a1;
+      --accent-light: #e0f2fe;
+      --accent-glow: rgba(2, 132, 199, 0.08);
+      --code-bg: #0b1120;
+      --code-text: #f1f5f9;
+      --inline-code-bg: #f1f5f9;
+      --inline-code-border: #e2e8f0;
+      --green: #059669;
+      --green-light: #ecfdf5;
+      --green-border: #a7f3d0;
+      --blue: #0284c7;
+      --blue-light: #f0f9ff;
+      --blue-border: #bae6fd;
+      --amber: #d97706;
+      --amber-light: #fffbeb;
+      --amber-border: #fde68a;
+      --rose: #e11d48;
     }
     * {
       box-sizing: border-box;
@@ -33,10 +46,12 @@
     body {
       background-color: var(--bg);
       color: var(--text-main);
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       line-height: 1.75;
       padding: 0 1.25rem 5rem;
       -webkit-font-smoothing: antialiased;
+      background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+      background-size: 24px 24px;
     }
     header.site-header {
       max-width: 960px;
@@ -55,16 +70,18 @@
       display: flex;
       align-items: center;
       gap: 0.5rem;
+      letter-spacing: -0.02em;
     }
     .brand span {
-      color: var(--accent-light);
+      color: var(--accent);
     }
     .nav-links a {
       color: var(--text-muted);
       text-decoration: none;
       font-size: 0.9rem;
       margin-left: 1.5rem;
-      transition: color 0.2s;
+      font-weight: 500;
+      transition: color 0.15s ease;
     }
     .nav-links a:hover {
       color: var(--text-main);
@@ -74,29 +91,29 @@
       margin: 2.5rem auto 0;
     }
     .hero-banner {
-      background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(56, 189, 248, 0.08), rgba(16, 185, 129, 0.05));
-      border: 1px solid var(--card-border);
-      border-radius: 1.25rem;
+      background: var(--surface);
+      border: 1px solid var(--card-border-strong);
+      border-radius: 0.75rem;
       padding: 2.75rem 2.25rem;
       margin-bottom: 2.5rem;
       position: relative;
-      overflow: hidden;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.03);
+      border-top: 4px solid var(--accent);
     }
     .hero-banner h1 {
-      font-size: 2.5rem;
+      font-size: 2.25rem;
       font-weight: 800;
-      line-height: 1.2;
+      line-height: 1.25;
       margin-bottom: 1rem;
-      letter-spacing: -0.025em;
-      background: linear-gradient(135deg, #ffffff 30%, #c4b5fd 70%, #93c5fd 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.03em;
+      color: var(--text-main);
     }
     .hero-banner p {
-      font-size: 1.1rem;
+      font-size: 1.05rem;
       color: var(--text-muted);
       max-width: 780px;
       margin-bottom: 1.5rem;
+      line-height: 1.7;
     }
     .meta-tags {
       display: flex;
@@ -105,34 +122,35 @@
     }
     .badge {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 0.75rem;
-      padding: 0.3rem 0.75rem;
-      border-radius: 9999px;
-      background: var(--accent-glow);
-      color: var(--accent-light);
-      border: 1px solid rgba(139, 92, 246, 0.3);
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 0.25rem 0.65rem;
+      border-radius: 0.375rem;
+      background: #f1f5f9;
+      color: var(--text-main);
+      border: 1px solid var(--card-border-strong);
       text-transform: uppercase;
       letter-spacing: 0.05em;
     }
     .badge.green {
-      background: rgba(16, 185, 129, 0.15);
-      color: #34d399;
-      border-color: rgba(16, 185, 129, 0.3);
+      background: var(--green-light);
+      color: var(--green);
+      border-color: var(--green-border);
     }
     .badge.blue {
-      background: rgba(56, 189, 248, 0.15);
-      color: #7dd3fc;
-      border-color: rgba(56, 189, 248, 0.3);
+      background: var(--blue-light);
+      color: var(--blue);
+      border-color: var(--blue-border);
     }
     .badge.amber {
-      background: rgba(245, 158, 11, 0.15);
-      color: #fbbf24;
-      border-color: rgba(245, 158, 11, 0.3);
+      background: var(--amber-light);
+      color: var(--amber);
+      border-color: var(--amber-border);
     }
     .tab-bar {
       display: flex;
       gap: 0.5rem;
-      border-bottom: 1px solid var(--card-border);
+      border-bottom: 1px solid var(--card-border-strong);
       margin-bottom: 2.5rem;
       overflow-x: auto;
       padding-bottom: 0.25rem;
@@ -142,128 +160,151 @@
       border: none;
       color: var(--text-muted);
       font-family: 'JetBrains Mono', monospace;
-      font-size: 0.85rem;
-      padding: 0.85rem 1.25rem;
+      font-size: 0.82rem;
+      padding: 0.75rem 1.15rem;
       cursor: pointer;
       border-bottom: 2px solid transparent;
-      transition: all 0.2s;
+      transition: all 0.15s ease;
       white-space: nowrap;
+      font-weight: 500;
     }
     .tab-btn:hover {
       color: var(--text-main);
     }
     .tab-btn.active {
-      color: var(--accent-light);
-      border-bottom-color: var(--accent-light);
-      font-weight: 600;
+      color: var(--accent-dark);
+      border-bottom-color: var(--accent);
+      font-weight: 700;
+      background: #f1f5f9;
+      border-radius: 0.375rem 0.375rem 0 0;
     }
     .article-section {
       display: none;
-      animation: fadeIn 0.3s ease-in-out;
+      background: var(--surface);
+      border: 1px solid var(--card-border);
+      border-radius: 0.75rem;
+      padding: 2.5rem;
+      box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04);
+      margin-bottom: 3rem;
+      animation: fadeIn 0.2s ease-in-out;
     }
     .article-section.active {
       display: block;
     }
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(6px); }
+      from { opacity: 0; transform: translateY(4px); }
       to { opacity: 1; transform: translateY(0); }
     }
     h2 {
-      font-size: 1.8rem;
-      font-weight: 700;
-      margin: 2rem 0 1rem;
-      color: #ffffff;
-      letter-spacing: -0.02em;
+      font-size: 1.75rem;
+      font-weight: 800;
+      margin: 1.5rem 0 1rem;
+      color: var(--text-main);
+      letter-spacing: -0.025em;
     }
     h3 {
-      font-size: 1.25rem;
-      font-weight: 600;
+      font-size: 1.2rem;
+      font-weight: 700;
       margin: 1.75rem 0 0.85rem;
-      color: #f3f4f6;
+      color: var(--text-main);
+      letter-spacing: -0.015em;
     }
     p {
       margin-bottom: 1.25rem;
-      color: #d1d5db;
+      color: var(--text-muted);
+      font-size: 1rem;
     }
     ul, ol {
       margin: 1rem 0 1.5rem 1.75rem;
-      color: #d1d5db;
+      color: var(--text-muted);
     }
     li {
       margin-bottom: 0.5rem;
     }
     code:not(pre code) {
       font-family: 'JetBrains Mono', monospace;
-      background: #1e293b;
-      color: #cbd5e1;
+      background: var(--inline-code-bg);
+      color: var(--text-main);
+      border: 1px solid var(--inline-code-border);
       padding: 0.15rem 0.4rem;
       border-radius: 0.25rem;
       font-size: 0.88em;
+      font-weight: 500;
     }
     pre {
       background: var(--code-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 0.75rem;
+      border: 1px solid #1e293b;
+      border-radius: 0.5rem;
       padding: 1.25rem;
       overflow-x: auto;
       margin: 1.5rem 0;
       font-family: 'JetBrains Mono', monospace;
-      font-size: 0.88rem;
+      font-size: 0.85rem;
       line-height: 1.65;
-      color: #e2e8f0;
+      color: var(--code-text);
       position: relative;
+      box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.2);
     }
     .callout {
-      border-left: 3px solid var(--accent);
-      background: rgba(139, 92, 246, 0.08);
+      border-left: 4px solid var(--accent);
+      background: #f8fafc;
+      border-top: 1px solid var(--card-border);
+      border-right: 1px solid var(--card-border);
+      border-bottom: 1px solid var(--card-border);
       padding: 1.15rem 1.35rem;
       border-radius: 0 0.5rem 0.5rem 0;
       margin: 1.75rem 0;
     }
     .callout.green {
       border-left-color: var(--green);
-      background: rgba(16, 185, 129, 0.08);
+      background: var(--green-light);
+      border-color: var(--green-border);
     }
     .callout.amber {
       border-left-color: var(--amber);
-      background: rgba(245, 158, 11, 0.08);
+      background: var(--amber-light);
+      border-color: var(--amber-border);
     }
     .callout strong {
-      color: #fff;
+      color: var(--text-main);
+    }
+    .callout p {
+      margin-bottom: 0;
     }
     /* Senior Systems Engineering Architecture Canvas */
     .arch-card {
-      background: #0c1220;
-      border: 1px solid #1e293b;
-      border-radius: 0.85rem;
-      padding: 1.75rem 1.5rem;
-      margin: 2.25rem 0;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+      background: #f8fafc;
+      border: 1px solid var(--card-border-strong);
+      border-radius: 0.65rem;
+      padding: 1.5rem;
+      margin: 2rem 0;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
     }
     .arch-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 1.25rem;
-      border-bottom: 1px solid #1e293b;
+      border-bottom: 1px solid var(--card-border);
       padding-bottom: 0.75rem;
     }
     .arch-title {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 0.82rem;
-      font-weight: 600;
-      color: var(--accent-light);
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--accent-dark);
       text-transform: uppercase;
       letter-spacing: 0.05em;
     }
     .arch-badge {
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.7rem;
-      padding: 0.2rem 0.5rem;
+      padding: 0.2rem 0.55rem;
       border-radius: 0.25rem;
-      background: rgba(56, 189, 248, 0.1);
+      background: var(--blue-light);
       color: var(--blue);
-      border: 1px solid rgba(56, 189, 248, 0.25);
+      border: 1px solid var(--blue-border);
+      font-weight: 600;
     }
     .arch-grid {
       display: grid;
@@ -276,54 +317,55 @@
       }
     }
     .arch-node {
-      background: #060913;
-      border: 1px solid #1e293b;
-      border-radius: 0.65rem;
+      background: #ffffff;
+      border: 1px solid var(--card-border-strong);
+      border-radius: 0.5rem;
       padding: 1.15rem 1rem;
       display: flex;
       flex-direction: column;
       position: relative;
-      transition: border-color 0.2s, transform 0.2s;
+      transition: border-color 0.15s, box-shadow 0.15s;
     }
     .arch-node:hover {
-      border-color: rgba(139, 92, 246, 0.6);
-      transform: translateY(-2px);
+      border-color: var(--accent);
+      box-shadow: 0 4px 6px -1px rgba(2, 132, 199, 0.1);
     }
     .arch-node-tag {
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.65rem;
-      color: var(--blue);
+      color: var(--accent-dark);
       text-transform: uppercase;
       margin-bottom: 0.45rem;
       letter-spacing: 0.05em;
-      font-weight: 600;
+      font-weight: 700;
     }
     .arch-node-tag.green { color: var(--green); }
     .arch-node-tag.amber { color: var(--amber); }
-    .arch-node-tag.purple { color: var(--accent-light); }
+    .arch-node-tag.purple { color: #7c3aed; }
     .arch-node-title {
       font-size: 0.92rem;
       font-weight: 700;
-      color: #fff;
+      color: var(--text-main);
       margin-bottom: 0.35rem;
     }
     .arch-node-desc {
       font-size: 0.76rem;
-      color: #94a3b8;
+      color: var(--text-muted);
       line-height: 1.5;
       margin-bottom: 0.75rem;
     }
     .arch-node-meta {
       margin-top: auto;
       padding-top: 0.65rem;
-      border-top: 1px dashed #1e293b;
+      border-top: 1px dashed var(--card-border);
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.7rem;
-      color: #cbd5e1;
+      color: var(--text-subtle);
     }
     .arch-node-meta code {
-      background: #0f172a;
-      color: #cbd5e1;
+      background: #f1f5f9;
+      color: var(--text-main);
+      border: 1px solid #e2e8f0;
       padding: 0.1rem 0.3rem;
       border-radius: 0.2rem;
       font-size: 0.7rem;
@@ -336,12 +378,13 @@
       gap: 0.5rem;
       padding: 0.65rem 1rem;
       margin-top: 1rem;
-      background: rgba(139, 92, 246, 0.06);
-      border: 1px dashed rgba(139, 92, 246, 0.25);
+      background: #ffffff;
+      border: 1px dashed var(--card-border-strong);
       border-radius: 0.5rem;
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.72rem;
-      color: #c4b5fd;
+      color: var(--text-muted);
+      font-weight: 500;
     }
     .arch-ribbon span {
       display: flex;
@@ -355,35 +398,38 @@
       margin: 1.5rem 0;
     }
     .metric-box {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
+      background: #ffffff;
+      border: 1px solid var(--card-border-strong);
       border-radius: 0.5rem;
-      padding: 1rem;
+      padding: 1.15rem;
       text-align: center;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
     }
     .metric-value {
       font-size: 1.6rem;
-      font-weight: 700;
-      color: var(--accent-light);
+      font-weight: 800;
+      color: var(--accent-dark);
       font-family: 'JetBrains Mono', monospace;
     }
     .metric-label {
       font-size: 0.8rem;
       color: var(--text-muted);
       margin-top: 0.25rem;
+      font-weight: 500;
     }
     footer.site-footer {
       max-width: 960px;
       margin: 4rem auto 0;
       padding-top: 2rem;
-      border-top: 1px solid var(--card-border);
+      border-top: 1px solid var(--card-border-strong);
       text-align: center;
-      color: var(--text-muted);
+      color: var(--text-subtle);
       font-size: 0.85rem;
     }
     footer.site-footer a {
-      color: var(--accent-light);
+      color: var(--accent-dark);
       text-decoration: none;
+      font-weight: 600;
     }
   </style>
 </head>
@@ -424,7 +470,7 @@
     <!-- ==================== ARTICLE 1: WEBFLOW ==================== -->
     <article id="art-webflow" class="article-section active">
       <h2>Giving AI Agents a CMS Memory: The Webflow Connector</h2>
-      <div style="margin-bottom: 1.25rem;"><a href="webflow.html" style="color: var(--accent-light); font-size: 0.88rem; text-decoration: none; font-family: 'JetBrains Mono', monospace;">🔗 Dedicated Article Permalink: webflow.html →</a></div>
+      <div style="margin-bottom: 1.25rem;"><a href="webflow.html" style="color: var(--accent-dark); font-size: 0.88rem; text-decoration: underline; font-family: 'JetBrains Mono', monospace; font-weight: 600;">Dedicated Article Permalink: webflow.html</a></div>
       <p>
         Webflow powers millions of production web applications, marketing sites, and documentation repositories. When teams deploy autonomous AI agents (such as customer support assistants, technical sales copilots, or internal research bots), they usually resort to web scraping or crawler APIs.
       </p>
@@ -464,10 +510,10 @@
           </div>
         </div>
         <div class="arch-ribbon">
-          <span>⚡ Ingress: HTTPS JSON</span>
-          <span>➔ Staging: DuckDB Memory</span>
-          <span>➔ Ingestion: DOCUMENT_SOURCE_ATTR</span>
-          <span>➔ Storage: Vector + Cypher Graph</span>
+          <span>Ingress: HTTPS JSON</span>
+          <span>Staging: DuckDB Memory</span>
+          <span>Ingestion: DOCUMENT_SOURCE_ATTR</span>
+          <span>Storage: Vector + Cypher Graph</span>
         </div>
       </div>
 
@@ -496,7 +542,7 @@ print(results)</code></pre>
     <!-- ==================== ARTICLE 2: SLAB ==================== -->
     <article id="art-slab" class="article-section">
       <h2>Engineering Team Brains: The Slab Wiki Connector</h2>
-      <div style="margin-bottom: 1.25rem;"><a href="slab.html" style="color: var(--accent-light); font-size: 0.88rem; text-decoration: none; font-family: 'JetBrains Mono', monospace;">🔗 Dedicated Article Permalink: slab.html →</a></div>
+      <div style="margin-bottom: 1.25rem;"><a href="slab.html" style="color: var(--accent-dark); font-size: 0.88rem; text-decoration: underline; font-family: 'JetBrains Mono', monospace; font-weight: 600;">Dedicated Article Permalink: slab.html</a></div>
       <p>
         Slab is the internal knowledge hub where engineering organizations publish system architecture RFCs, infrastructure runbooks, incident postmortems, and team onboarding playbooks.
       </p>
@@ -536,10 +582,10 @@ print(results)</code></pre>
           </div>
         </div>
         <div class="arch-ribbon">
-          <span>⚡ Relay GraphQL Cursor</span>
-          <span>➔ In-Memory Comment Threading</span>
-          <span>➔ Cognify Architecture Extraction</span>
-          <span>➔ Graph Multi-Hop Query</span>
+          <span>Relay GraphQL Cursor Ingress</span>
+          <span>In-Memory Comment Threading</span>
+          <span>Cognify Architecture Extraction</span>
+          <span>Graph Multi-Hop Query</span>
         </div>
       </div>
 
@@ -570,7 +616,7 @@ answer = await cognee.search("What is our disaster recovery failover procedure f
     <!-- ==================== ARTICLE 3: FRESHDESK ==================== -->
     <article id="art-freshdesk" class="article-section">
       <h2>Support Without Amnesia: The Freshdesk Connector</h2>
-      <div style="margin-bottom: 1.25rem;"><a href="freshdesk.html" style="color: var(--accent-light); font-size: 0.88rem; text-decoration: none; font-family: 'JetBrains Mono', monospace;">🔗 Dedicated Article Permalink: freshdesk.html →</a></div>
+      <div style="margin-bottom: 1.25rem;"><a href="freshdesk.html" style="color: var(--accent-dark); font-size: 0.88rem; text-decoration: underline; font-family: 'JetBrains Mono', monospace; font-weight: 600;">Dedicated Article Permalink: freshdesk.html</a></div>
       <p>
         Support engineers and AI customer service agents frequently encounter variations of the same complex customer issues. Without shared institutional memory, resolutions are repeatedly rediscovered from scratch.
       </p>
@@ -610,10 +656,10 @@ answer = await cognee.search("What is our disaster recovery failover procedure f
           </div>
         </div>
         <div class="arch-ribbon">
-          <span>⚡ REST v2 Rate-Aware Polling</span>
-          <span>➔ Multi-Turn Chronological Normalization</span>
-          <span>➔ Root-Cause Triplet Cognify</span>
-          <span>➔ Fast Zero-Shot Resolution</span>
+          <span>REST v2 Rate-Aware Polling</span>
+          <span>Multi-Turn Chronological Normalization</span>
+          <span>Root-Cause Triplet Cognify</span>
+          <span>Fast Zero-Shot Resolution</span>
         </div>
       </div>
 
@@ -645,7 +691,7 @@ res = await cognee.search("How was the OAuth2 token refresh race condition resol
     <!-- ==================== ARTICLE 4: TL;DV ==================== -->
     <article id="art-tldv" class="article-section">
       <h2>Turning Spoken Words into Knowledge Graphs: The tl;dv Connector</h2>
-      <div style="margin-bottom: 1.25rem;"><a href="tldv.html" style="color: var(--accent-light); font-size: 0.88rem; text-decoration: none; font-family: 'JetBrains Mono', monospace;">🔗 Dedicated Article Permalink: tldv.html →</a></div>
+      <div style="margin-bottom: 1.25rem;"><a href="tldv.html" style="color: var(--accent-dark); font-size: 0.88rem; text-decoration: underline; font-family: 'JetBrains Mono', monospace; font-weight: 600;">Dedicated Article Permalink: tldv.html</a></div>
       <p>
         Remote engineering organizations spend hundreds of hours every month in Zoom and Google Meet calls discussing roadmap decisions, customer discovery feedback, and sprint retrospectives.
       </p>
@@ -685,10 +731,10 @@ res = await cognee.search("How was the OAuth2 token refresh race condition resol
           </div>
         </div>
         <div class="arch-ribbon">
-          <span>⚡ Parallel Multi-Resource Fetch</span>
-          <span>➔ Speaker Dialogue Parsing</span>
-          <span>➔ Action Item Triplet Extraction</span>
-          <span>➔ Verbal Enterprise Memory</span>
+          <span>Parallel Multi-Resource Fetch</span>
+          <span>Speaker Dialogue Parsing</span>
+          <span>Action Item Triplet Extraction</span>
+          <span>Verbal Enterprise Memory</span>
         </div>
       </div>
 
@@ -721,7 +767,7 @@ print(summary)</code></pre>
     <!-- ==================== ARTICLE 5: FALKORDB BUGFIX ==================== -->
     <article id="art-falkordb" class="article-section">
       <h2>Under the Hood: Hunting Down the FalkorDB Visualization Bug</h2>
-      <div style="margin-bottom: 1.25rem;"><a href="falkordb.html" style="color: var(--accent-light); font-size: 0.88rem; text-decoration: none; font-family: 'JetBrains Mono', monospace;">🔗 Dedicated Article Permalink: falkordb.html →</a></div>
+      <div style="margin-bottom: 1.25rem;"><a href="falkordb.html" style="color: var(--accent-dark); font-size: 0.88rem; text-decoration: underline; font-family: 'JetBrains Mono', monospace; font-weight: 600;">Dedicated Article Permalink: falkordb.html</a></div>
       <p>
         While contributing data connectors to Cognee Community, we discovered a critical bug in <code>cognee-community-hybrid-adapter-falkor</code> (<a href="https://github.com/topoteretes/cognee-community/issues/262" target="_blank" rel="noopener">Issue #262</a>): <strong>every graph dataset containing edges crashed on visualization with <code>KeyError: 'source_node_id'</code></strong>.
       </p>
@@ -758,10 +804,10 @@ print(summary)</code></pre>
           </div>
         </div>
         <div class="arch-ribbon">
-          <span>⚡ Cypher Graph Traversal</span>
-          <span>➔ Direct Node UUID Projection</span>
-          <span>➔ Defensive Null Fallback</span>
-          <span>➔ Interactive Visual Graph</span>
+          <span>Cypher Graph Traversal</span>
+          <span>Direct Node UUID Projection</span>
+          <span>Defensive Null Fallback</span>
+          <span>Interactive Visual Graph</span>
         </div>
       </div>
 

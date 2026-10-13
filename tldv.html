@@ -10,119 +10,158 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #090d16;
-      --card-bg: #111827;
-      --card-border: #1f293d;
-      --text-main: #f3f4f6;
-      --text-muted: #9ca3af;
-      --accent: #8b5cf6;
-      --accent-light: #a78bfa;
-      --code-bg: #050811;
-      --green: #10b981;
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --card-bg: #ffffff;
+      --card-hover: #f1f5f9;
+      --card-border: #e2e8f0;
+      --card-border-strong: #cbd5e1;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --text-subtle: #64748b;
+      --accent: #0284c7;
+      --accent-dark: #0369a1;
+      --accent-light: #e0f2fe;
+      --code-bg: #0b1120;
+      --code-text: #f1f5f9;
+      --inline-code-bg: #f1f5f9;
+      --inline-code-border: #e2e8f0;
+      --green: #059669;
+      --green-light: #ecfdf5;
+      --green-border: #a7f3d0;
+      --blue: #0284c7;
+      --blue-light: #f0f9ff;
+      --blue-border: #bae6fd;
+      --amber: #d97706;
+      --amber-light: #fffbeb;
+      --amber-border: #fde68a;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       background-color: var(--bg);
       color: var(--text-main);
-      font-family: 'Inter', sans-serif;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       line-height: 1.75;
       padding: 0 1.25rem 5rem;
+      -webkit-font-smoothing: antialiased;
+      background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+      background-size: 24px 24px;
     }
     header.site-header {
       max-width: 860px;
       margin: 0 auto;
       padding: 2.5rem 0 1.5rem;
-      border-bottom: 1px solid var(--card-border);
+      border-bottom: 1px solid var(--card-border-strong);
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
-    .brand { font-weight: 800; font-size: 1.2rem; color: var(--text-main); text-decoration: none; }
-    .brand span { color: var(--accent-light); }
-    .nav-links a { color: var(--text-muted); text-decoration: none; margin-left: 1.5rem; font-size: 0.9rem; }
-    .container { max-width: 860px; margin: 2.5rem auto 0; }
+    .brand { font-weight: 800; font-size: 1.2rem; color: var(--text-main); text-decoration: none; letter-spacing: -0.02em; }
+    .brand span { color: var(--accent); }
+    .nav-links a { color: var(--text-muted); text-decoration: none; margin-left: 1.5rem; font-size: 0.9rem; font-weight: 500; transition: color 0.15s ease; }
+    .nav-links a:hover { color: var(--text-main); }
+    .container {
+      max-width: 860px;
+      margin: 2.5rem auto 0;
+      background: var(--surface);
+      border: 1px solid var(--card-border);
+      border-radius: 0.75rem;
+      padding: 2.75rem 2.25rem;
+      box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04);
+      border-top: 4px solid var(--accent);
+    }
     h1 {
-      font-size: 2.5rem;
+      font-size: 2.25rem;
       font-weight: 800;
-      line-height: 1.2;
+      line-height: 1.25;
       margin-bottom: 1rem;
-      background: linear-gradient(135deg, #ffffff 30%, #c4b5fd 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      color: var(--text-main);
+      letter-spacing: -0.03em;
     }
     .meta-bar {
       display: flex;
-      gap: 0.75rem;
+      flex-wrap: wrap;
+      gap: 0.6rem;
       align-items: center;
       margin-bottom: 2rem;
       font-size: 0.85rem;
-      color: var(--text-muted);
+      color: var(--text-subtle);
+      padding-bottom: 1.25rem;
+      border-bottom: 1px solid var(--card-border);
     }
     .badge {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 0.75rem;
+      font-size: 0.72rem;
+      font-weight: 600;
       padding: 0.25rem 0.65rem;
-      border-radius: 9999px;
-      background: rgba(139, 92, 246, 0.15);
-      color: var(--accent-light);
-      border: 1px solid rgba(139, 92, 246, 0.3);
+      border-radius: 0.375rem;
+      background: #f1f5f9;
+      color: var(--text-main);
+      border: 1px solid var(--card-border-strong);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
     }
-    h2 { font-size: 1.6rem; margin: 2rem 0 1rem; color: #fff; }
-    h3 { font-size: 1.2rem; margin: 1.5rem 0 0.75rem; color: #f3f4f6; }
-    p { margin-bottom: 1.25rem; color: #d1d5db; }
-    ul { margin: 1rem 0 1.5rem 1.75rem; color: #d1d5db; }
+    h2 { font-size: 1.6rem; font-weight: 800; margin: 2rem 0 1rem; color: var(--text-main); letter-spacing: -0.02em; }
+    h3 { font-size: 1.2rem; font-weight: 700; margin: 1.5rem 0 0.75rem; color: var(--text-main); letter-spacing: -0.015em; }
+    p { margin-bottom: 1.25rem; color: var(--text-muted); font-size: 1rem; }
+    ul { margin: 1rem 0 1.5rem 1.75rem; color: var(--text-muted); }
     li { margin-bottom: 0.5rem; }
     code:not(pre code) {
       font-family: 'JetBrains Mono', monospace;
-      background: #1e293b;
-      color: #cbd5e1;
+      background: var(--inline-code-bg);
+      color: var(--text-main);
+      border: 1px solid var(--inline-code-border);
       padding: 0.15rem 0.4rem;
       border-radius: 0.25rem;
+      font-size: 0.88em;
+      font-weight: 500;
     }
     pre {
       background: var(--code-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 0.75rem;
+      border: 1px solid #1e293b;
+      border-radius: 0.5rem;
       padding: 1.25rem;
       overflow-x: auto;
       margin: 1.5rem 0;
       font-family: 'JetBrains Mono', monospace;
-      font-size: 0.88rem;
-      color: #e2e8f0;
+      font-size: 0.85rem;
+      line-height: 1.65;
+      color: var(--code-text);
+      box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.2);
     }
-    /* Senior Systems Engineering Architecture Canvas */
     .arch-card {
-      background: #0c1220;
-      border: 1px solid #1e293b;
-      border-radius: 0.85rem;
-      padding: 1.75rem 1.5rem;
-      margin: 2.25rem 0;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+      background: #f8fafc;
+      border: 1px solid var(--card-border-strong);
+      border-radius: 0.65rem;
+      padding: 1.5rem;
+      margin: 2rem 0;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
     }
     .arch-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 1.25rem;
-      border-bottom: 1px solid #1e293b;
+      border-bottom: 1px solid var(--card-border);
       padding-bottom: 0.75rem;
     }
     .arch-title {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 0.82rem;
-      font-weight: 600;
-      color: var(--accent-light);
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--accent-dark);
       text-transform: uppercase;
       letter-spacing: 0.05em;
     }
     .arch-badge {
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.7rem;
-      padding: 0.2rem 0.5rem;
+      padding: 0.2rem 0.55rem;
       border-radius: 0.25rem;
-      background: rgba(56, 189, 248, 0.1);
-      color: #38bdf8;
-      border: 1px solid rgba(56, 189, 248, 0.25);
+      background: var(--blue-light);
+      color: var(--blue);
+      border: 1px solid var(--blue-border);
+      font-weight: 600;
     }
     .arch-grid {
       display: grid;
@@ -135,54 +174,55 @@
       }
     }
     .arch-node {
-      background: #060913;
-      border: 1px solid #1e293b;
-      border-radius: 0.65rem;
+      background: #ffffff;
+      border: 1px solid var(--card-border-strong);
+      border-radius: 0.5rem;
       padding: 1.15rem 1rem;
       display: flex;
       flex-direction: column;
       position: relative;
-      transition: border-color 0.2s, transform 0.2s;
+      transition: border-color 0.15s, box-shadow 0.15s;
     }
     .arch-node:hover {
-      border-color: rgba(139, 92, 246, 0.6);
-      transform: translateY(-2px);
+      border-color: var(--accent);
+      box-shadow: 0 4px 6px -1px rgba(2, 132, 199, 0.1);
     }
     .arch-node-tag {
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.65rem;
-      color: #38bdf8;
+      color: var(--accent-dark);
       text-transform: uppercase;
       margin-bottom: 0.45rem;
       letter-spacing: 0.05em;
-      font-weight: 600;
+      font-weight: 700;
     }
-    .arch-node-tag.green { color: #10b981; }
-    .arch-node-tag.amber { color: #f59e0b; }
-    .arch-node-tag.purple { color: var(--accent-light); }
+    .arch-node-tag.green { color: var(--green); }
+    .arch-node-tag.amber { color: var(--amber); }
+    .arch-node-tag.purple { color: #7c3aed; }
     .arch-node-title {
       font-size: 0.92rem;
       font-weight: 700;
-      color: #fff;
+      color: var(--text-main);
       margin-bottom: 0.35rem;
     }
     .arch-node-desc {
       font-size: 0.76rem;
-      color: #94a3b8;
+      color: var(--text-muted);
       line-height: 1.5;
       margin-bottom: 0.75rem;
     }
     .arch-node-meta {
       margin-top: auto;
       padding-top: 0.65rem;
-      border-top: 1px dashed #1e293b;
+      border-top: 1px dashed var(--card-border);
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.7rem;
-      color: #cbd5e1;
+      color: var(--text-subtle);
     }
     .arch-node-meta code {
-      background: #0f172a;
-      color: #cbd5e1;
+      background: #f1f5f9;
+      color: var(--text-main);
+      border: 1px solid #e2e8f0;
       padding: 0.1rem 0.3rem;
       border-radius: 0.2rem;
       font-size: 0.7rem;
@@ -195,12 +235,13 @@
       gap: 0.5rem;
       padding: 0.65rem 1rem;
       margin-top: 1rem;
-      background: rgba(139, 92, 246, 0.06);
-      border: 1px dashed rgba(139, 92, 246, 0.25);
+      background: #ffffff;
+      border: 1px dashed var(--card-border-strong);
       border-radius: 0.5rem;
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.72rem;
-      color: #c4b5fd;
+      color: var(--text-muted);
+      font-weight: 500;
     }
     .arch-ribbon span {
       display: flex;
@@ -208,29 +249,35 @@
       gap: 0.35rem;
     }
     .callout {
-      border-left: 3px solid var(--accent);
-      background: rgba(139, 92, 246, 0.08);
+      border-left: 4px solid var(--accent);
+      background: #f8fafc;
+      border-top: 1px solid var(--card-border);
+      border-right: 1px solid var(--card-border);
+      border-bottom: 1px solid var(--card-border);
       padding: 1.15rem 1.35rem;
       border-radius: 0 0.5rem 0.5rem 0;
       margin: 1.75rem 0;
+    }
+    .callout strong {
+      color: var(--text-main);
     }
     footer {
       max-width: 860px;
       margin: 4rem auto 0;
       padding-top: 2rem;
-      border-top: 1px solid var(--card-border);
+      border-top: 1px solid var(--card-border-strong);
       text-align: center;
-      color: var(--text-muted);
+      color: var(--text-subtle);
       font-size: 0.85rem;
     }
-    footer a { color: var(--accent-light); text-decoration: none; }
+    footer a { color: var(--accent-dark); text-decoration: none; font-weight: 600; }
   </style>
 </head>
 <body>
   <header class="site-header">
     <a href="index.html" class="brand">Soujas<span>.dev</span></a>
     <nav class="nav-links">
-      <a href="index.html">← All Connectors</a>
+      <a href="index.html">All Connectors</a>
       <a href="https://github.com/soujasK" target="_blank" rel="noopener">GitHub</a>
       <a href="https://github.com/topoteretes/cognee" target="_blank" rel="noopener">Cognee</a>
     </nav>
@@ -287,10 +334,10 @@
         </div>
       </div>
       <div class="arch-ribbon">
-        <span>⚡ Parallel Multi-Resource Fetch</span>
-        <span>➔ Speaker Dialogue Parsing</span>
-        <span>➔ Action Item Triplet Extraction</span>
-        <span>➔ Verbal Enterprise Memory</span>
+        <span>Parallel Multi-Resource Fetch</span>
+        <span>Speaker Dialogue Parsing</span>
+        <span>Action Item Triplet Extraction</span>
+        <span>Verbal Enterprise Memory</span>
       </div>
     </div>
 
