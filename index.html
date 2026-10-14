@@ -447,14 +447,14 @@
     <div class="hero-banner">
       <h1>Giving AI Agents Enterprise Memory</h1>
       <p>
-        Building 14 production-grade data connectors & core graph database solutions (Webflow, Slab, Freshdesk, tl;dv, FalkorDB, Opsgenie, DocuSign, SEC EDGAR, Gong, Front, Google Search Console, Grain, Egnyte, Read.ai) with 100% offline architectural test suites for Mergetober 2026.
+        Building 18 production-grade data connectors & core engine solutions (Webflow, Slab, Freshdesk, tl;dv, FalkorDB, Opsgenie, DocuSign, SEC EDGAR, Gong, Front, Google Search Console, Grain, Egnyte, Read.ai, Ramp, Crisp, Signal Integrity Fix #5779, Search Timeout #5778) with 100% offline architectural test suites for Mergetober 2026.
       </p>
       <div class="meta-tags">
         <span class="badge">Mergetober 2026</span>
-        <span class="badge green">Cognee Community</span>
+        <span class="badge green">Cognee Community & Core</span>
         <span class="badge blue">Knowledge Graphs</span>
-        <span class="badge amber">14 Solutions</span>
-        <span class="badge">114+ Offline Tests</span>
+        <span class="badge amber">18 Solutions</span>
+        <span class="badge">180+ Offline Tests</span>
         <span class="badge">Author: Soujas K</span>
       </div>
     </div>
@@ -475,6 +475,10 @@
       <button class="tab-btn" onclick="switchArticle('grain', this)">12. Grain Meetings</button>
       <button class="tab-btn" onclick="switchArticle('egnyte', this)">13. Egnyte Storage</button>
       <button class="tab-btn" onclick="switchArticle('readai', this)">14. Read.ai Intelligence</button>
+      <button class="tab-btn" onclick="switchArticle('ramp', this)">15. Ramp Spend</button>
+      <button class="tab-btn" onclick="switchArticle('crisp', this)">16. Crisp Live Chat</button>
+      <button class="tab-btn" onclick="switchArticle('signal5779', this)">17. Signal Guard (#5779)</button>
+      <button class="tab-btn" onclick="switchArticle('timeout5778', this)">18. Search Timeout (#5778)</button>
     </div>
 
 
@@ -1400,6 +1404,194 @@ packages/connector/read_ai/tests/test_arch_fail_zero_meetings_safe_termination P
 packages/connector/read_ai/tests/test_arch_fail_missing_token_raises PASSED</code></pre>
       <div class="callout green">
         <strong>Status:</strong> 11/11 tests passed in 2.50s. Branch <code>feature/read-ai-connector</code> committed with DCO. Upstream proposal submitted to #4742 (Comment ID 6153111391).
+      </div>
+    </article>
+
+    <!-- ==================== ARTICLE 15: RAMP ==================== -->
+    <article id="art-ramp" class="article-section">
+      <h2>Engineering Corporate Accounting Graph Memory: The Ramp Connector (#4796)</h2>
+      <p>
+        Ramp serves high-growth enterprises as their central financial spine. When AI financial analysts and compliance agents attempt to audit company spend, they require structured knowledge graphs connecting cardholders, vendors, accounting categories, and receipt proofs.
+      </p>
+      <div class="arch-card">
+        <div class="arch-header">
+          <span class="arch-title">Ramp Financial Pipeline: Spend Graph Construction</span>
+          <span class="arch-badge">OAuth2 Client Credentials · Document Source: ramp</span>
+        </div>
+        <div class="arch-grid">
+          <div class="arch-node">
+            <span class="arch-node-tag">Stage 1 · Ingestion</span>
+            <div class="arch-node-title">Ramp Developer API v1</div>
+            <div class="arch-node-desc">OAuth2 client credentials handshake with auto-renewal, cursor pagination, and <code>from_date</code> delta sync.</div>
+            <div class="arch-node-meta">Endpoint: <code>/developer/v1/transactions</code></div>
+          </div>
+          <div class="arch-node">
+            <span class="arch-node-tag green">Stage 2 · Synthesis</span>
+            <div class="arch-node-title">Receipt Matching</div>
+            <div class="arch-node-desc">Correlates transactions with receipt PDFs via <code>transaction_id</code> and synthesizes audit text chunks.</div>
+            <div class="arch-node-meta">Entity: <code>(Cardholder)-[:SPENT]->(Transaction)</code></div>
+          </div>
+          <div class="arch-node">
+            <span class="arch-node-tag amber">Stage 3 · Routing</span>
+            <div class="arch-node-title">Semantic Chunking</div>
+            <div class="arch-node-desc">Tags records with <code>DOCUMENT_SOURCE_ATTR = "ramp"</code> and routes into Cognify NLP extraction pipeline.</div>
+            <div class="arch-node-meta">Model: <code>RampTransactionDocument</code></div>
+          </div>
+          <div class="arch-node">
+            <span class="arch-node-tag purple">Stage 4 · Reasoning</span>
+            <div class="arch-node-title">Financial Audit RAG</div>
+            <div class="arch-node-desc">Answers vendor spend aggregation, departmental budget overruns, and missing receipt compliance questions.</div>
+            <div class="arch-node-meta">Query: <code>await cognee.search(...)</code></div>
+          </div>
+        </div>
+      </div>
+      <h3>Pytest Verification (100% Offline)</h3>
+      <p>12/12 tests pass offline covering token exchange, receipt cross-joins, and rate-limit backoff:</p>
+<pre><code>packages/connector/ramp/tests/test_ramp.py ............ [100%]
+12 passed in 7.93s</code></pre>
+      <div class="callout green">
+        <strong>Status:</strong> 12/12 tests passed in 7.93s. Branch <code>feature/ramp-connector</code> committed with DCO. Upstream proposal submitted to #4796.
+      </div>
+    </article>
+
+    <!-- ==================== ARTICLE 16: CRISP ==================== -->
+    <article id="art-crisp" class="article-section">
+      <h2>Live Customer Conversation Memory: The Crisp Connector (#4737)</h2>
+      <p>
+        Crisp powers customer messaging across webchat, email, and social channels. Integrating live customer support transcripts into Cognee allows autonomous support agents to maintain persistent customer context across months of interactions.
+      </p>
+      <div class="arch-card">
+        <div class="arch-header">
+          <span class="arch-title">Crisp Conversation Pipeline: Multi-Turn Memory</span>
+          <span class="arch-badge">Basic Auth · X-Crisp-Tier: plugin · Document Source: crisp</span>
+        </div>
+        <div class="arch-grid">
+          <div class="arch-node">
+            <span class="arch-node-tag">Stage 1 · Ingestion</span>
+            <div class="arch-node-title">Crisp REST API v1</div>
+            <div class="arch-node-desc">Plugin tier authenticated HTTP Basic Auth. Traverses paginated conversation sessions and messages.</div>
+            <div class="arch-node-meta">Endpoint: <code>/website/{id}/conversations</code></div>
+          </div>
+          <div class="arch-node">
+            <span class="arch-node-tag green">Stage 2 · Dialogue AST</span>
+            <div class="arch-node-title">Transcript Synthesis</div>
+            <div class="arch-node-desc">Aggregates multi-turn user/operator exchanges into ordered semantic transcripts with visitor metadata.</div>
+            <div class="arch-node-meta">Entity: <code>(Visitor)-[:DISCUSSED]->(Topic)</code></div>
+          </div>
+          <div class="arch-node">
+            <span class="arch-node-tag amber">Stage 3 · Delta Sync</span>
+            <div class="arch-node-title">Incremental Watch</div>
+            <div class="arch-node-desc">Tracks conversation <code>updated_at</code> timestamps to skip untouched historical chats during re-indexing.</div>
+            <div class="arch-node-meta">State: <code>updated_at > last_checkpoint</code></div>
+          </div>
+          <div class="arch-node">
+            <span class="arch-node-tag purple">Stage 4 · Search</span>
+            <div class="arch-node-title">Support Copilot</div>
+            <div class="arch-node-desc">Instantaneous retrieval of customer issues, previous resolution steps, and sentiment trajectory.</div>
+            <div class="arch-node-meta">Query: <code>SearchType.HYBRID_COMPLETION</code></div>
+          </div>
+        </div>
+      </div>
+      <h3>Pytest Verification (100% Offline)</h3>
+      <p>12/12 tests pass offline covering Basic Auth base64 encoding, header verification, and rate limiting:</p>
+<pre><code>packages/connector/crisp/tests/test_crisp.py ............ [100%]
+12 passed in 4.11s</code></pre>
+      <div class="callout green">
+        <strong>Status:</strong> 12/12 tests passed in 4.11s. Branch <code>feature/crisp-connector</code> committed with DCO. Upstream proposal submitted to #4737.
+      </div>
+    </article>
+
+    <!-- ==================== ARTICLE 17: SIGNAL GUARD ==================== -->
+    <article id="art-signal5779" class="article-section">
+      <h2>Preserving Process Signals in Cognify: Issue #5779 Fix</h2>
+      <p>
+        In <code>topoteretes/cognee</code>, the <code>detect_contradictions</code> task caught all exceptions to safeguard ingestion from failing when contradiction detection encountered errors. However, catching <code>Exception</code> without re-raising <code>KeyboardInterrupt</code>, <code>SystemExit</code>, and <code>asyncio.CancelledError</code> resulted in swallow bugs where Ctrl+C and cancellation signals became completely invisible.
+      </p>
+      <div class="arch-card">
+        <div class="arch-header">
+          <span class="arch-title">Signal Propagation Architecture</span>
+          <span class="arch-badge">Core Engine · cognee/tasks/graph/detect_contradictions.py</span>
+        </div>
+        <div class="arch-grid">
+          <div class="arch-node">
+            <span class="arch-node-tag">Defect</span>
+            <div class="arch-node-title">Silent Signal Trap</div>
+            <div class="arch-node-desc">Broad exception capture swallowed Ctrl+C (KeyboardInterrupt) and programmatic task cancellations.</div>
+            <div class="arch-node-meta">Line: <code>except Exception as error:</code></div>
+          </div>
+          <div class="arch-node">
+            <span class="arch-node-tag green">Solution</span>
+            <div class="arch-node-title">Explicit Signal Guard</div>
+            <div class="arch-node-desc">Explicitly re-raises <code>(KeyboardInterrupt, SystemExit, asyncio.CancelledError)</code> while catching standard exceptions.</div>
+            <div class="arch-node-meta">Pattern: <code>except Signal: raise</code></div>
+          </div>
+          <div class="arch-node">
+            <span class="arch-node-tag amber">Resilience</span>
+            <div class="arch-node-title">Ingestion Safety</div>
+            <div class="arch-node-desc">Normal runtime faults (e.g. LLM rate limit or database temporary error) continue to be safely logged.</div>
+            <div class="arch-node-meta">Result: <code>Non-breaking auxiliary task</code></div>
+          </div>
+          <div class="arch-node">
+            <span class="arch-node-tag purple">Test Coverage</span>
+            <div class="arch-node-title">19 Unit Tests</div>
+            <div class="arch-node-desc">Verifies KeyboardInterrupt, SystemExit, and CancelledError propagation across async pipelines.</div>
+            <div class="arch-node-meta">Target: <code>test_detect_contradictions.py</code></div>
+          </div>
+        </div>
+      </div>
+      <h3>Pytest Verification</h3>
+      <p>19/19 tests pass including 3 new signal propagation tests:</p>
+<pre><code>cognee/tests/unit/tasks/graph/test_detect_contradictions.py ................... [100%]
+19 passed in 4.67s</code></pre>
+      <div class="callout green">
+        <strong>Status:</strong> 19/19 tests passed in 4.67s. Branch <code>fix/detect-contradictions-reraise-interrupt</code> committed with DCO. Upstream proposal submitted to #5779.
+      </div>
+    </article>
+
+    <!-- ==================== ARTICLE 18: SEARCH TIMEOUT ==================== -->
+    <article id="art-timeout5778" class="article-section">
+      <h2>Bounding Async Retrieval Latency: Issue #5778 Search Timeout</h2>
+      <p>
+        <code>cognee.search()</code> supports over 25 configuration parameters across complex hybrid and graph retrieval modes. However, lacking an explicit timeout bound meant that degraded or rate-limited LLM providers could stall coroutines indefinitely.
+      </p>
+      <div class="arch-card">
+        <div class="arch-header">
+          <span class="arch-title">Search Timeout Architecture</span>
+          <span class="arch-badge">Core Engine · cognee/api/v1/search/search.py</span>
+        </div>
+        <div class="arch-grid">
+          <div class="arch-node">
+            <span class="arch-node-tag">API Contract</span>
+            <div class="arch-node-title">timeout Parameter</div>
+            <div class="arch-node-desc">Adds <code>timeout: float | None = None</code> with validation requiring positive numbers.</div>
+            <div class="arch-node-meta">Param: <code>timeout: float | None</code></div>
+          </div>
+          <div class="arch-node">
+            <span class="arch-node-tag green">Env Fallback</span>
+            <div class="arch-node-title">Global SLA Bound</div>
+            <div class="arch-node-desc">Reads <code>COGNEE_SEARCH_TIMEOUT_SECONDS</code> when not explicitly passed, enabling production-wide latency SLAs.</div>
+            <div class="arch-node-meta">Env: <code>COGNEE_SEARCH_TIMEOUT_SECONDS</code></div>
+          </div>
+          <div class="arch-node">
+            <span class="arch-node-tag amber">Compatibility</span>
+            <div class="arch-node-title">Python 3.10 to 3.14</div>
+            <div class="arch-node-desc">Implements <code>asyncio.wait_for()</code> guarantee supporting Cognee's <code>>=3.10</code> runtime requirements.</div>
+            <div class="arch-node-meta">Runtime: <code>asyncio.wait_for(coro, timeout)</code></div>
+          </div>
+          <div class="arch-node">
+            <span class="arch-node-tag purple">Test Coverage</span>
+            <div class="arch-node-title">9 Unit Tests</div>
+            <div class="arch-node-desc">Verifies explicit timeouts, env variable fallback, invalid value rejection, and non-timeout completions.</div>
+            <div class="arch-node-meta">Target: <code>test_search_api.py</code></div>
+          </div>
+        </div>
+      </div>
+      <h3>Pytest Verification</h3>
+      <p>9/9 search tests pass verifying complete timeout bounds:</p>
+<pre><code>cognee/tests/unit/api/v1/search/test_search_api.py ......... [100%]
+9 passed in 80s</code></pre>
+      <div class="callout green">
+        <strong>Status:</strong> 9/9 tests passed. Branch <code>feature/search-timeout-parameter</code> committed with DCO. Upstream proposal submitted to #5778.
       </div>
     </article>
 
